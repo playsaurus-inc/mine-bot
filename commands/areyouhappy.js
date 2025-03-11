@@ -1,20 +1,28 @@
-const Discord = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
 
-module.exports.run = async (bot, message, args) => {
+module.exports = {
+	data: new SlashCommandBuilder()
+	.setName("areyouhappy")
+	.setDescription("annoying pings the users asking if they're happy")
+	.setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+	.addUserOption(option => 
+		option.setName('user')
+			.setDescription('the user to ping')
+			.setRequired(true)
+	),
 
+	async execute(interaction)
+	{
+		const {channel, options} = interaction;
+		const user = options.getUser("user");
+		
+		await interaction.reply({content: "sending pings", ephemeral: true }).then(() => {
 
-	if(!message.member.hasPermission("MANAGE_MESSAGES")) return message.reply("Who do you think you are?")
-	if(args[0].length < 8) {return};
-	// if(!args[0]) return message.channel.send("pst. you forgot to include the number of messages you want me to clear");
-
-	setTimeout(function() {message.channel.send(`${args[0]} are`);},1000);
-	setTimeout(function() {message.channel.send(`${args[0]} you`);},2000);
-	setTimeout(function() {message.channel.send(`${args[0]} happy`);},3000);
-	setTimeout(function() {message.channel.send(`${args[0]} now`);},4000);
-	setTimeout(function() {message.channel.send(`${args[0]} ?`);},5000);
-
+		setTimeout(() => {channel.send(`${user} are`);},1000);
+		setTimeout(() => {channel.send(`${user} you`);},2000);
+		setTimeout(() => {channel.send(`${user} happy`);},3000);
+		setTimeout(() => {channel.send(`${user} now`);},4000);
+		setTimeout(() => {channel.send(`${user} ?`);},5000);
+		})
 	}
-
-module.exports.help = {
-	name: "areyouhappy"
 }

@@ -1,49 +1,33 @@
-const Discord = require("discord.js");
 
-module.exports.run = async (bot, message, args) =>
-{
+const { SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
+const util = require("util");
 
-	function getGuildMember(userID)
-	{
-		return new Promise((res, rej) =>
-		{
-			res(bot.guilds.cache.get("760967463684276274").members.fetch(userID));
-		});
-	}
+module.exports = {
+    data: new SlashCommandBuilder()
+    .setName("kick")
+    .setDescription("kicks the user from the server")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+	.addUserOption(option => 
+		option.setName('user')
+			.setDescription('the user to kick')
+			.setRequired(true)
+	)
+    .addStringOption(option => 
+        option.setName('reason')
+            .setDescription('the reason the user was kicked')
+            .setRequired(true)
+    ),
 
-	if(!message.member.hasPermission("MANAGE_MESSAGES")) 
-	{
-		return message.reply("Who do you think you are?")
-	}
-	else
-	{
-		var mentionedUserId = 0;
-		if(message.mentions.users.first())
-		{
-			mentionedUserId = message.mentions.users.first().id;
-		}
-		else
-		{
-			mentionedUserId = args[0];
-		}
-
-		if(mentionedUserId > 0)
-		{
-			getGuildMember(mentionedUserId).then(guildMember =>
-			{
-				var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
-				var reason = args.slice(1).join(" ");
-				guildMember.kick();
-
-				auditChannel.send(`${message.member.displayName} kicked <@${mentionedUserId}> for ${reason}`)
-			});
-		}
-		else
-		{
-			message.channel.send("Forgot to mention user");
-		}
-	}
-}
-module.exports.help = {
-	name: "kick"
+    async execute(interaction)
+    {
+		const {channel, options} = interaction;
+		const user = options.getUser("user");
+        const reason = options.getString("reason");
+        
+        await interaction.reply({content: "Kicking user", ephemeral: true }).then(() => {
+            var auditChannel = interaction.guild.channels.cache.find(channel => channel.name === "audit-log");
+            user.kick(reason);
+            auditChannel.send(`${interaction.member.displayName} kicked ${user} for ${reason}`);
+        })
+    }
 }
