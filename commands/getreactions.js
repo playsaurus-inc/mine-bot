@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, MessageAttachment, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, AttachmentBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
                 .setDescription('The ID of the message to fetch reactions from')
                 .setRequired(true)
         )
-        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator), // Restrict to admins only
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction) {
         const messageID = interaction.options.getString('messageid');
@@ -40,9 +40,9 @@ module.exports = {
                 return interaction.editReply('Message not found in any channel.');
             }
 
-            // Get all reactions from the message
+            // Fetch reactions explicitly to ensure they're loaded
             const reactions = fetchedMessage.reactions.cache;
-
+            
             if (reactions.size === 0) {
                 return interaction.editReply('No reactions found for this message.');
             }
@@ -50,6 +50,7 @@ module.exports = {
             // Categorize users by emoji
             const reactionData = [];
             for (const [emoji, reaction] of reactions) {
+                // Fetch users for each reaction to ensure all users are loaded
                 const users = await reaction.users.fetch();
                 const userList = users.map(user => `${user.tag} (${user.id})`).join('\n');
                 reactionData.push(`Emoji: ${emoji}
@@ -61,8 +62,8 @@ ${userList}\n`);
             const fileName = `reactions_${messageID}.txt`;
             fs.writeFileSync(fileName, reactionData.join('\n'), 'utf8');
 
-            // Send the text file
-            const attachment = new MessageAttachment(fileName);
+            // Use AttachmentBuilder instead of MessageAttachment
+            const attachment = new AttachmentBuilder(fileName);
             await interaction.user.send({ content: 'Here is the categorized list of reactions:', files: [attachment] });
 
             // Notify in interaction
