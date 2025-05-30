@@ -1,19 +1,14 @@
 {
-  "name": "minebot",
-  "version": "1.5.0",
-  "nodemonConfig": {
-    "ignore": [
-      "*.json"
-    ]
-  },
-  "description": "bot for discord",
-  "main": "index.js",
-  "author": "McNiiby",
-  "license": "ISC",
-  "dependencies": {
-    "atob": "^2.1.2",
-    "discord.js": "^14.6.0",
-    "json-bigint": "^1.0.0",
-    "request": "^2.88.2"
-  }
+    "name": "minebot",
+    "version": "1.0.0",
+    "description": "bot for discord",
+    "main": "index.js",
+    "author": "McNiiby",
+    "license": "MIT",
+    "dependencies": {
+        "atob": "^2.1.2",
+        "discord.js": "^14.6.0",
+        "json-bigint": "^1.0.0",
+        "request": "^2.88.2"
+    }
 }
