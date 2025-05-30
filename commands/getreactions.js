@@ -5,7 +5,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('getreactions')
         .setDescription('Fetch all reactions from a message and save them to a categorized text file.')
-        .addStringOption(option => 
+        .addStringOption(option =>
             option.setName('messageid')
                 .setDescription('The ID of the message to fetch reactions from')
                 .setRequired(true)
