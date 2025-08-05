@@ -346,7 +346,87 @@ bot.on(Events.MessageCreate, message => {
 
     //Auto mod stuff
 
+    // Enhanced scam detection with gaming-aware patterns
+    if (!message.channel.isDMBased() && message.guild.id == guildId && !message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+        var lowercaseMessage = message.content.toLowerCase();
+        var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
+        
+        // Built-in scam patterns
+        var builtInPatterns = [
+            {
+                trigger: ["telegram"],
+                suspicious: ["earn", "profit", "teach", "show you", "pay me", "interested people", "drop a message", "get started", "within", "hours", "days"],
+                minSuspicious: 2,
+                reason: "telegram financial scam",
+                action: "timeout"
+            },
+            {
+                trigger: ["verify", "scan"],
+                suspicious: ["account", "qr code", "qr-code", "steam", "link your", "connect your", "click here", "visit"],
+                minSuspicious: 1,
+                reason: "account verification scam",
+                action: "timeout"
+            },
+            {
+                trigger: ["pay me", "send me"],
+                suspicious: ["when you", "after you", "receive", "teach", "show", "method", "strategy"],
+                minSuspicious: 1,
+                reason: "payment request scam",
+                action: "timeout"
+            },
+            {
+                trigger: ["giveaway", "free nitro"],
+                suspicious: ["telegram", "scan", "verify", "qr", "dm me", "message me", "click", "visit"],
+                minSuspicious: 1,
+                reason: "giveaway verification scam",
+                action: "timeout"
+            },
+            {
+                trigger: ["teach you", "show you", "i'll teach"],
+                suspicious: ["telegram", "message me", "dm me", "interested people", "pay me", "percentage", "%"],
+                minSuspicious: 1,
+                reason: "mentoring scam",
+                action: "timeout"
+            }
+        ];
 
+        // Check each pattern
+        for (let pattern of builtInPatterns) {
+            let hasTrigger = pattern.trigger.some(word => lowercaseMessage.includes(word));
+            if (hasTrigger) {
+                let suspiciousCount = pattern.suspicious.filter(word => lowercaseMessage.includes(word)).length;
+                
+                if (suspiciousCount >= pattern.minSuspicious) {
+                    console.log(`Scam detected: ${pattern.reason}, triggers: ${pattern.trigger}, suspicious: ${suspiciousCount}`);
+                    message.delete();
+                    
+                    if (pattern.action === "ban") {
+                        message.member.ban({ days: 7, reason: pattern.reason })
+                            .then(console.log)
+                            .catch(console.error);
+                        
+                        message.member.send(`You have been banned from the Mr. Mine Discord for ${pattern.reason}.`)
+                            .then(console.log)
+                            .catch(console.error);
+                            
+                        auditChannel.send({ content: `Banned <@${message.member.id}> for ${pattern.reason}. Message: \`\`\`${message.content}\`\`\`` });
+                    } else {
+                        // 24 hour timeout
+                        message.member.timeout(24 * 60 * 60 * 1000, pattern.reason)
+                            .then(console.log)
+                            .catch(console.error);
+
+                        message.member.send(`You have been timed out for 24 hours from the Mr. Mine Discord for possible ${pattern.reason}. Contact a moderator if you believe this was a mistake.`)
+                            .then(console.log)
+                            .catch(console.error);
+
+                        auditChannel.send({ content: `Timed out <@${message.member.id}> for possible ${pattern.reason}. Message: \`\`\`${message.content}\`\`\`` });
+                    }
+                    break;
+                }
+            }
+        }
+    }
 
     if (message.content.includes("Checkout this game I am playing https://play.google.com")) {
         message.delete();
@@ -382,7 +462,7 @@ bot.on(Events.MessageCreate, message => {
                         .then(console.log)
                         .catch(console.error);
 
-                    auditChannel.send({ contnet: `Warned <@${message.member.id}> for posting links to a different Discord server.` })
+                    auditChannel.send({ content: `Warned <@${message.member.id}> for posting links to a different Discord server.` })
                 }
             }
 
