@@ -496,7 +496,17 @@ bot.on(Events.MessageCreate, message => {
                         if (userMessageHistory[message.author.id][0] - userMessageHistory[message.author.id][5] > -8000) {
                             if (message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return;
                             var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
-                            message.delete();
+                            
+                            // Delete recent messages from this user in this channel (message frequency spam)
+                            message.channel.messages.fetch({ limit: 20 })
+                                .then(messages => {
+                                    const userMessages = messages.filter(msg => 
+                                        msg.author.id === message.author.id && 
+                                        msg.createdTimestamp > Date.now() - 30000 // Last 30 seconds
+                                    );
+                                    message.channel.bulkDelete(userMessages).catch(console.error);
+                                })
+                                .catch(console.error);
 
                             message.member.send("You have been banned for spamming")
                                 .then(console.log)
@@ -538,7 +548,25 @@ bot.on(Events.MessageCreate, message => {
                     if (message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return;
 
                     var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
-                    message.delete();
+                    
+                    // Delete recent messages from this user across multiple channels (channel hopping spam)
+                    const guild = message.guild;
+                    const channels = Object.keys(channelsPosttedIn[message.author.id]);
+                    
+                    channels.forEach(channelId => {
+                        const channel = guild.channels.cache.get(channelId);
+                        if (channel) {
+                            channel.messages.fetch({ limit: 20 })
+                                .then(messages => {
+                                    const userMessages = messages.filter(msg => 
+                                        msg.author.id === message.author.id && 
+                                        msg.createdTimestamp > Date.now() - 15000 // Last 15 seconds
+                                    );
+                                    channel.bulkDelete(userMessages).catch(console.error);
+                                })
+                                .catch(console.error);
+                        }
+                    });
 
                     message.member.send("You have been banned for spamming")
                         .then(console.log)
