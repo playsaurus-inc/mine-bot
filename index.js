@@ -376,11 +376,11 @@ bot.on(Events.MessageCreate, message =>
 		if(!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
 		{
 			message.delete();
-			message.member.send({content: "Hey, it appears you posted in the bug reports channel with out the proper format. If your message was a bug report, please edit it to include \"report:\" and resend it to the bug reports channel, thanks! \n\n Message Copy: " + message.content})
+			message.member.send({content: "Hey, it appears you posted in the bug reports channel with out the proper format. If your message was a bug report, please edit it to include \"report:\" , preferably including the game version and patch letter, and resend it to the bug reports channel, thanks! \n\n Message Copy: " + message.content})
 				.then(console.log)
 				.catch(console.error);
 
-			message.channel.send({content: "Please only use this channel for bug reports. All messages should start with \"Report:\". Discussions should be had in <#760967463684276278>. If you have more information you want to add, please edit your report with more details. If your message was a report, a copy of it has been sent to your DM's."})
+			message.channel.send({content: "Please only use this channel for bug reports. All messages should start with \"Report:\". Discussions should be had in <#760967463684276278>. If you have more information you want to add, like the game version and patch letter, please edit your report with more details. If your message was a report, a copy of it has been sent to your DM's."})
 				.then(console.log)
 				.catch(console.error);
 		}
