@@ -1,7 +1,10 @@
+require('dotenv').config();
 const util = require('util');
 const request = require('request');
 const atob = require('atob');
-const { token, clientId, guildId } = require(__dirname + "/botconfig.json");
+const token = process.env.DISCORD_TOKEN;
+const clientId = process.env.DISCORD_CLIENT_ID;
+const guildId = process.env.DISCORD_GUILD_ID;
 const { REST, Routes, Client, Collection, Events, GatewayIntentBits, Partials, PermissionFlagsBits, PermissionsBitField } = require("discord.js");
 const fs = require("fs");
 const path = require('path');

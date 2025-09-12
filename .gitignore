@@ -6,7 +6,7 @@ yarn-error.log*
 lerna-debug.log*
 
 # Bot-specific configuration
-botconfig.json
+.env
 
 # Data files generated/modified by the bot at runtime
 saves.json
