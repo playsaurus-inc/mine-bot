@@ -43,10 +43,10 @@ If the configuration is correct, the bot should appear online in Discord, and it
 
 ## 🚢 Deployment
 
-We use the "Release to deploy" methodology:
+Simply create a new release in GitHub and the website will be automatically deployed to the server.
 
-1.  Create a new GitHub release.
-2.  A GitHub Action will automatically merge the `main` branch into the `production` branch, and then later it will SSH into the server and run the deployment script (`deploy.sh`).
+> [!NOTE] 
+> **How it works:** When you create a new Github release, a GitHub Action will merge the `main` branch into the `production` branch and Forge will deploy the changes. The deployment is handled by Laravel Forge using the `production` branch.
 
 > [!NOTE]
 > Always create releases from the `main` branch to ensure all tested changes are included in the deployment.
