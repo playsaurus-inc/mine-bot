@@ -386,6 +386,23 @@ bot.on(Events.MessageCreate, message =>
 		}
 	}
 
+	// Mobile bug reports channel moderation
+	if(message.channel.id == 1423422234990739627 && !message.content.toLowerCase().startsWith("report android:") && !message.content.toLowerCase().startsWith("report ios:"))
+	{
+		log(message.content);
+		if(!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
+		{
+			message.delete();
+			message.member.send({content: "Hey, it appears you posted in the mobile bug reports channel without the proper format. If your message was a bug report, please edit it to include \"Report Android:\" or \"Report IOS:\" and resend it to the mobile bug reports channel, thanks! \n\n Message Copy: " + message.content})
+				.then(console.log)
+				.catch(console.error);
+
+			message.channel.send({content: "Please only use this channel for bug reports for the Mobile v46 Update. All messages should start with \"Report Android:\" or \"Report IOS:\" . Discussions should be had in <#760967463684276278>. If you have more information you want to add please edit your report with more details. If your message was a report, a copy of it has been sent to your DM's."})
+				.then(console.log)
+				.catch(console.error);
+		}
+	}
+
 
 	if(message.channel.id == 761441702753206273)
 	{
