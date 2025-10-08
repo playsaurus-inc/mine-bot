@@ -1,0 +1,30 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Bot-specific configuration
+.env
+
+# Data files generated/modified by the bot at runtime
+saves.json
+bannedSaves.json
+bannedFromRoles.json
+remind.json
+
+# Temporary files
+message.txt
+reactions_*.txt
+*.log
+
+# IDE / Editor specific
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db

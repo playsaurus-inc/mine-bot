@@ -1,18 +1,57 @@
-# MineBot
-A Discord.js bot for the Mr. Mine Discord 
+# MineBot: Mr. Mine Discord Bot
 
-You can find the core functionality of the bot located in Index.js 
+A Discord bot for the Mr. Mine Discord server, providing game information, moderation tools, and automated responses. The core functionality is located in `index.js`.
 
-All commands can be found in the /commands folder
+## 👾 Features
 
-To run the bot first do 
+-   Slash commands for game-specific information (e.g., `/faq`, `/bosses`, `/chests`). Find all commands in the `/commands` folder.
+-   Moderation tools (e.g., `/ban`, `/kick`).
+-   Automatic role assignment based on user's in-game progress (via DMed save files).
+-   Automated responses to frequently asked questions.
+-   Basic auto-moderation capabilities for chat.
 
-```npm install```
+## ⚙️ Setup
 
-Then edit botconfig.json and add the bot token id and the user(client) id of the discord bot and the guildId if you intend to use the bot outside of the Mr. Mine Discord.
+### 1. Install Dependencies
 
-Then run 
+```bash
+npm install
+```
 
-```node index.js```
+### 2. Configure the Bot
 
-and the bot should work 
+Copy the example environment file and fill in your bot's details:
+
+```bash
+cp .env.example .env
+```
+
+Then, edit `.env` and provide:
+*   `DISCORD_TOKEN`: Your Discord bot token.
+*   `DISCORD_CLIENT_ID`: Your bot's client ID.
+*   `DISCORD_GUILD_ID`: The ID of the Discord server (guild) where the bot will operate.
+
+> If you are developing locally, you may want to use a dedicated test server and its ID for `DISCORD_GUILD_ID`.
+
+### 3. Start the Bot
+
+```bash
+node index.js
+```
+
+If the configuration is correct, the bot should appear online in Discord, and its slash commands will be registered/updated for the specified guild.
+
+## 🚢 Deployment
+
+Simply create a new release in GitHub and the website will be automatically deployed to the server.
+
+> [!NOTE] 
+> **How it works:** When you create a new Github release, a GitHub Action will merge the `main` branch into the `production` branch and Forge will deploy the changes. The deployment is handled by Laravel Forge using the `production` branch.
+
+> [!NOTE]
+> Always create releases from the `main` branch to ensure all tested changes are included in the deployment.
+
+## 📜 License
+
+This project is licensed under the MIT License (as specified in `package.json`).
+

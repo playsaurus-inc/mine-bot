@@ -1,24 +1,27 @@
+require('dotenv').config();
 const util = require('util');
 const request = require('request');
 const atob = require('atob');
-const {token, clientId, guildId} = require(__dirname + "/botconfig.json");
-const {REST, Routes, Client, Collection, Events, GatewayIntentBits, Partials, PermissionFlagsBits, PermissionsBitField} = require("discord.js");
+const token = process.env.DISCORD_TOKEN;
+const clientId = process.env.DISCORD_CLIENT_ID;
+const guildId = process.env.DISCORD_GUILD_ID;
+const { REST, Routes, Client, Collection, Events, GatewayIntentBits, Partials, PermissionFlagsBits, PermissionsBitField } = require("discord.js");
 const fs = require("fs");
 const path = require('path');
-const JSONbig = require('json-bigint')({useNativeBigInt: true});;
+const JSONbig = require('json-bigint')({ useNativeBigInt: true });;
 const bot = new Client({
-	intents: [
-		GatewayIntentBits.Guilds,
-		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.MessageContent,
-		GatewayIntentBits.GuildMembers,
-		GatewayIntentBits.DirectMessages
-	],
-	partials: [Partials.Channel],
-	allowedMentions: {
-		parse: ['users', 'roles'],
-		repliedUser: true
-	}
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.DirectMessages
+    ],
+    partials: [Partials.Channel],
+    allowedMentions: {
+        parse: ['users', 'roles'],
+        repliedUser: true
+    }
 });
 var messageText;
 var userMessageHistory = {};
@@ -32,244 +35,203 @@ const commands = [];
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-for(const file of commandFiles)
-{
-	const filePath = path.join(commandsPath, file);
-	const command = require(filePath);
-	// Set a new item in the Collection with the key as the command name and the value as the exported module
-	if('data' in command && 'execute' in command)
-	{
-		bot.commands.set(command.data.name, command);
-	} else
-	{
-		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-	}
+for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const command = require(filePath);
+    // Set a new item in the Collection with the key as the command name and the value as the exported module
+    if ('data' in command && 'execute' in command) {
+        bot.commands.set(command.data.name, command);
+    } else {
+        console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+    }
 }
 
 // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
-for(const file of commandFiles)
-{
-	const command = require(`./commands/${file}`);
-	commands.push(command.data.toJSON());
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+    commands.push(command.data.toJSON());
 }
 
 // Construct and prepare an instance of the REST module
-const rest = new REST({version: '10'}).setToken(token);
+const rest = new REST({ version: '10' }).setToken(token);
 
 // and deploy your commands!
-(async () =>
-{
-	try
-	{
-		console.log(`Started refreshing ${commands.length} application (/) commands.`);
+(async () => {
+    try {
+        console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-		// The put method is used to fully refresh all commands in the guild with the current set
-		const data = await rest.put(
-			Routes.applicationGuildCommands(clientId, guildId),
-			{body: commands},
-		);
+        // The put method is used to fully refresh all commands in the guild with the current set
+        const data = await rest.put(
+            Routes.applicationGuildCommands(clientId, guildId),
+            { body: commands },
+        );
 
-		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-	} catch(error)
-	{
-		// And of course, make sure you catch and log any errors!
-		console.error(error);
-	}
+        console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+    } catch (error) {
+        // And of course, make sure you catch and log any errors!
+        console.error(error);
+    }
 })();
 
 var JSONsaves;
 var JSONBannedsaves;
 var bannedFromRoles;
 
-setInterval(function ()
-{
-	log("writing to files");
-	fs.writeFileSync(__dirname + '/saves.json', JSON.stringify(JSONsaves));
-	fs.writeFileSync(__dirname + '/bannedSaves.json', JSON.stringify(JSONBannedsaves));
+setInterval(function () {
+    log("writing to files");
+    fs.writeFileSync(__dirname + '/saves.json', JSON.stringify(JSONsaves));
+    fs.writeFileSync(__dirname + '/bannedSaves.json', JSON.stringify(JSONBannedsaves));
 }, 1000 * 60 * 5)
 
 
-fs.readFile(__dirname + '/saves.json', (err, data) =>
-{
-	if(err) throw err;
-	JSONsaves = JSON.parse(data);
+fs.readFile(__dirname + '/saves.json', (err, data) => {
+    if (err) throw err;
+    JSONsaves = JSON.parse(data);
 });
 
-fs.readFile(__dirname + '/bannedSaves.json', (err, data) =>
-{
-	if(err) throw err;
-	JSONBannedsaves = JSON.parse(data);
+fs.readFile(__dirname + '/bannedSaves.json', (err, data) => {
+    if (err) throw err;
+    JSONBannedsaves = JSON.parse(data);
 });
 
-fs.readFile(__dirname + '/bannedFromRoles.json', (err, data) =>
-{
-	if(err) throw err;
-	bannedFromRoles = JSON.parse(data);
+fs.readFile(__dirname + '/bannedFromRoles.json', (err, data) => {
+    if (err) throw err;
+    bannedFromRoles = JSON.parse(data);
 });
 
-bot.on(Events.InteractionCreate, async interaction =>
-{
-	if(!interaction.isChatInputCommand()) return;
+bot.on(Events.InteractionCreate, async interaction => {
+    if (!interaction.isChatInputCommand()) return;
 
-	const command = interaction.client.commands.get(interaction.commandName);
+    const command = interaction.client.commands.get(interaction.commandName);
 
-	if(!command)
-	{
-		console.error(`No command matching ${interaction.commandName} was found.`);
-		return;
-	}
+    if (!command) {
+        console.error(`No command matching ${interaction.commandName} was found.`);
+        return;
+    }
 
-	try
-	{
-		await command.execute(interaction);
-	} catch(error)
-	{
-		console.error(error);
-		await interaction.reply({content: 'There was an error while executing this command!', ephemeral: true});
-	}
+    try {
+        await command.execute(interaction);
+    } catch (error) {
+        console.error(error);
+        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+    }
 });
 
-function log(log)
-{
-	var time = new Date();
-	console.log("[" + (time.getHours() % 12) + ":" + time.getMinutes() + ":" + time.getSeconds() + "] " + log);
+function log(log) {
+    var time = new Date();
+    console.log("[" + (time.getHours() % 12) + ":" + time.getMinutes() + ":" + time.getSeconds() + "] " + log);
 }
 
-function getRoles()
-{
-	return new Promise((res, rej) =>
-	{
-		res(bot.guilds.cache.get(guildId).roles);
-	});
+function getRoles() {
+    return new Promise((res, rej) => {
+        res(bot.guilds.cache.get(guildId).roles);
+    });
 }
 
-function getGuildMember(userID)
-{
-	return new Promise((res, rej) =>
-	{
-		res(bot.guilds.cache.get(guildId).members.fetch(userID));
-	});
+function getGuildMember(userID) {
+    return new Promise((res, rej) => {
+        res(bot.guilds.cache.get(guildId).members.fetch(userID));
+    });
 }
 
-function getNumberOfRoles(userID)
-{
-	return new Promise((res, rej) =>
-	{
-		res(getGuildMember(userID)
-			.then((member) =>
-			{
-				var numRoles = member.roles.cache
-					.map((role) => role.toString());
-				return numRoles.length;
-			}));
-	});
+function getNumberOfRoles(userID) {
+    return new Promise((res, rej) => {
+        res(getGuildMember(userID)
+            .then((member) => {
+                var numRoles = member.roles.cache
+                    .map((role) => role.toString());
+                return numRoles.length;
+            }));
+    });
 }
 
-function setRole(depth, message)
-{
+function setRole(depth, message) {
 
-	let userID = message.author.id;
+    let userID = message.author.id;
 
-	if(bannedFromRoles.bannedFromRoles.includes(userID)) return;
-	getGuildMember(userID)
-		.then(guildMember =>
-		{
-			var {cache} = guildMember.guild.roles;
-			var rollAdded = false;
-			log("adding role")
+    if (bannedFromRoles.bannedFromRoles.includes(userID)) return;
+    getGuildMember(userID)
+        .then(guildMember => {
+            var { cache } = guildMember.guild.roles;
+            var rollAdded = false;
+            log("adding role")
 
-			if(depth < 304)
-			{
-				guildMember.roles.add("776582359423778818");
-				rollAdded = true;
-			}
-			else if(depth >= 304 && depth < 500) 
-			{
-				guildMember.roles.add("776583199711035483");
-				rollAdded = true;
-			}
-			else if(depth >= 500 && depth < 1000) 
-			{
-				guildMember.roles.add("776630529461190707");
-				rollAdded = true;
-			}
-			else if(depth >= 1000 && depth < 1132) 
-			{
-				guildMember.roles.add("795776541900275772");
-				rollAdded = true;
-			}
-			else if(depth >= 1132 && depth < 1814) 
-			{
-				guildMember.roles.add("822975154128814081");
-				rollAdded = true;
-			}
-			else if(depth >= 1814) 
-			{
-				guildMember.roles.add("922178836383285259");
-				rollAdded = true;
-			}
+            if (depth < 304) {
+                guildMember.roles.add("776582359423778818");
+                rollAdded = true;
+            }
+            else if (depth >= 304 && depth < 500) {
+                guildMember.roles.add("776583199711035483");
+                rollAdded = true;
+            }
+            else if (depth >= 500 && depth < 1000) {
+                guildMember.roles.add("776630529461190707");
+                rollAdded = true;
+            }
+            else if (depth >= 1000 && depth < 1132) {
+                guildMember.roles.add("795776541900275772");
+                rollAdded = true;
+            }
+            else if (depth >= 1132 && depth < 1814) {
+                guildMember.roles.add("822975154128814081");
+                rollAdded = true;
+            }
+            else if (depth >= 1814) {
+                guildMember.roles.add("922178836383285259");
+                rollAdded = true;
+            }
 
-			if(rollAdded)
-			{
-				message.reply("You have been assigned a role on the Mr. Mine Discord. Post a message in chat to see it.");
-				log("added role");
-			}
+            if (rollAdded) {
+                message.reply("You have been assigned a role on the Mr. Mine Discord. Post a message in chat to see it.");
+                log("added role");
+            }
 
-		}).catch(console.error);
+        }).catch(console.error);
 }
 
-function decodeSave(data)
-{
-	return atob(atob(data.split("|")[1])).split("|");
+function decodeSave(data) {
+    return atob(atob(data.split("|")[1])).split("|");
 }
 
-function checkSave(save, data, message)
-{
-	log("checking save");
-	var depth = save[1];
-	var timeplayed = save[81] / 60;
-	var gameUID = save[3];
-	var userBanned = false;
-	var tickets = save[115];
-	var targetMember = bot.guilds.cache.get(guildId).members.cache.get(message.author.id);
+function checkSave(save, data, message) {
+    log("checking save");
+    var depth = save[1];
+    var timeplayed = save[81] / 60;
+    var gameUID = save[3];
+    var userBanned = false;
+    var tickets = save[115];
+    var targetMember = bot.guilds.cache.get(guildId).members.cache.get(message.author.id);
 
-	for(var i = 0; i < JSONsaves['saves'].length; i++)
-	{
-		if(JSONsaves['saves'][i].gameUID && !isNaN(gameUID))
-		{
-			if(!userBanned && (JSONsaves['saves'][i].gameUID == gameUID && JSONsaves['saves'][i].userID != message.author.id) || tickets > 20000)
-			{
-				userBanned = true;
-				message.reply("Your save was determined to be illegitimate either because you cheated or used a different users save. You will no longer be eligible for ranks on the server.");
+    for (var i = 0; i < JSONsaves['saves'].length; i++) {
+        if (JSONsaves['saves'][i].gameUID && !isNaN(gameUID)) {
+            if (!userBanned && (JSONsaves['saves'][i].gameUID == gameUID && JSONsaves['saves'][i].userID != message.author.id) || tickets > 20000) {
+                userBanned = true;
+                message.reply("Your save was determined to be illegitimate either because you cheated or used a different users save. You will no longer be eligible for ranks on the server.");
 
-				if(targetMember)
-				{
-					targetMember.roles.set([]);
-				}
-				break;
-			}
-		}
-	}
+                if (targetMember) {
+                    targetMember.roles.set([]);
+                }
+                break;
+            }
+        }
+    }
 
-	if(!userBanned && !bannedFromRoles.bannedFromRoles.includes(message.author.id))
-	{
-		JSONsaves['saves'].push({"userID": message.author.id, "depth": depth, "timeplayed": Math.round(timeplayed), "gameUID": gameUID, "save": data});
-	}
-	else if(!bannedFromRoles.bannedFromRoles.includes(message.author.id))
-	{
-		bannedFromRoles.bannedFromRoles.push(message.author.id);
-		var edited_bannedFromRoles = JSON.stringify(bannedFromRoles);
-		fs.writeFileSync(__dirname + '/bannedFromRoles.json', edited_bannedFromRoles);
+    if (!userBanned && !bannedFromRoles.bannedFromRoles.includes(message.author.id)) {
+        JSONsaves['saves'].push({ "userID": message.author.id, "depth": depth, "timeplayed": Math.round(timeplayed), "gameUID": gameUID, "save": data });
+    }
+    else if (!bannedFromRoles.bannedFromRoles.includes(message.author.id)) {
+        bannedFromRoles.bannedFromRoles.push(message.author.id);
+        var edited_bannedFromRoles = JSON.stringify(bannedFromRoles);
+        fs.writeFileSync(__dirname + '/bannedFromRoles.json', edited_bannedFromRoles);
 
-		JSONBannedsaves['saves'].push({"userID": message.author.id, "depth": depth, "timeplayed": Math.round(timeplayed), "gameUID": gameUID, "userBanned": userBanned, "save": data});
-	}
+        JSONBannedsaves['saves'].push({ "userID": message.author.id, "depth": depth, "timeplayed": Math.round(timeplayed), "gameUID": gameUID, "userBanned": userBanned, "save": data });
+    }
 
-	setRole(depth, message);
+    setRole(depth, message);
 }
 
-bot.once(Events.ClientReady, c =>
-{
-	log(`${c.user.username} is online!`);
+bot.once(Events.ClientReady, c => {
+    log(`${c.user.username} is online!`);
 });
 
 
