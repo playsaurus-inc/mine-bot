@@ -235,358 +235,312 @@ bot.once(Events.ClientReady, c => {
 });
 
 
-bot.on(Events.MessageCreate, message => {
-    if (message.author.bot) return;
-    var memberJoinTime;
+bot.on(Events.MessageCreate, message =>
+{
+	if(message.author.bot) return;
+	var memberJoinTime;
 
-    if (message.member) {
-        memberJoinTime = message.member.joinedTimestamp;
-    };
+	if(message.member)
+	{
+		memberJoinTime = message.member.joinedTimestamp;
+	};
 
-    var currentTime = Date.now();
+	var currentTime = Date.now();
 
-    var questionStarters = ["what", "any idea", "why", "whats"]
-
-
-    for (var i = 0; i < questionStarters.length; i++) {
-        let lowercaseMessage = message.content.toLowerCase();
-
-        if (lowercaseMessage.includes(questionStarters[i]) && (lowercaseMessage.includes("red star") || lowercaseMessage.includes("red name"))) {
-            message.reply({ content: "The red names are the names of players who chose to support the game by buying 650 tickets or 1400 tickets at one time." })
-            break;
-        }
-        if (lowercaseMessage.includes(questionStarters[i]) && (lowercaseMessage.includes("mime") || lowercaseMessage.includes("112"))) {
-            message.reply({ content: "That's Mr. Mime, he's just vibin. He doesn't do anything." })
-            break;
-        }
-        if ((lowercaseMessage.includes("any") || lowercaseMessage.includes("give me") || lowercaseMessage.includes("are there")) && lowercaseMessage.includes("code")) {
-            message.reply({ content: "The devs randomly create the codes and they typically expire after a few days or uses.\nIf the latest ones in <#764279333262852138> don't work it's unlikely there is any available.\nPlease do not ask for any codes and NEVER ask the devs for codes." });
-            return;
-        }
-    }
-
-    //DM REQUESTING SAVE CODE
-    if (message.channel.isDMBased()) {
-        if (bannedFromRoles.bannedFromRoles.includes(message.author.id)) {
-            message.reply("Your save was determined to be illegitimate either because you cheated or used a different users save. You will no longer be eligible for ranks on the server.");
-        }
-        else {
-            log("received DM");
-            if (message.attachments.first()) {
-                if (message.attachments.first().name === `message.txt`) {
-                    request.get(message.attachments.first().url)
-                        .on('error', console.error)
-                        .pipe(fs.createWriteStream(__dirname + '/message.txt'))
-                        .on('finish', function () {
-                            fs.readFile(__dirname + '/message.txt', "utf8", (err, data) => {
-                                var save = "";
-
-                                if (data.includes("|")) {
-                                    var save = decodeSave(data);
-                                }
-
-                                if (save.length < 450) {
-                                    message.reply("Your save is missing data, please make sure to paste all of the text. It's okay if Discord asks you to convert it to a file.\nIf you sent me your save by clicking on my name on the right pannel and pasting the text in the little box, Discord automatically cuts the text to 500 characters. So please send it from the actual DM page.")
-                                }
-                                else {
-                                    checkSave(save, data, message);
-                                }
-                            })
-                        })
-
-                }
-            }
-            else if (message.content.length > 200 && message.content.includes("|") && !message.content.includes(" ")) {
-                var save = decodeSave(message.content);
-
-                if (save.length < 450) {
-                    message.reply("Your save is missing data, please make sure to paste all of the text. It's okay if Discord asks you to convert it to a file.\nIf you sent me your save by clicking on my name on the right pannel and pasting the text in the little box, Discord automatically cuts the text to 500 characters. So please send it from this DM actual DM page.")
-                }
-                else {
-                    checkSave(save, data, message);
-                }
-            }
-            else {
-                log(message.content);
-            }
-        }
-    }
-
-    if (message.channel.id == 761441663397789696 && !message.content.toLowerCase().startsWith("report:")) {
-        log(message.content);
-        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            message.delete();
-            message.member.send({ content: "Hey, it appears you posted in the bug reports channel with out the proper format. If your message was a bug report, please edit it to include \"report:\" and resend it to the bug reports channel, thanks! \n\n Message Copy: " + message.content })
-                .then(console.log)
-                .catch(console.error);
-
-            message.channel.send({ content: "Please only use this channel for bug reports. All messages should start with \"Report:\". Discussions should be had in <#760967463684276278>. If you have more information you want to add, please edit your report with more details. If your message was a report, a copy of it has been sent to your DM's." })
-                .then(console.log)
-                .catch(console.error);
-        }
-    }
+	var questionStarters = ["what", "any idea", "why", "whats"]
 
 
-    if (message.channel.id == 761441702753206273) {
-        if (!message.content.toLowerCase().startsWith("idea:") && !message.content.toLowerCase().startsWith("suggestion:")) {
-            log(message.content);
-            if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-                message.delete();
-                message.member.send({ content: "Hey, it appears you posted in the ideas and suggestions channel with out the proper format. If your message was an idea, please edit it to include \"idea:\" and resend it to the ideas channel, thanks! \n\n Message Copy:" + message.content })
-                    .then(console.log)
-                    .catch(console.error);
+	for(var i = 0; i < questionStarters.length; i++)
+	{
+		let lowercaseMessage = message.content.toLowerCase();
 
-                message.channel.send({ content: "Please only use this channel for ideas and suggestions. All messages should start with \"Idea:\". Discussions should be had in <#760967463684276278>. If you have more information you want to add, please edit your idea with more details." })
-                    .then(console.log)
-                    .catch(console.error);
-            }
-        }
-        else {
-            message.react('👍');
-            message.react('👎');
-        }
-    }
+		if(lowercaseMessage.includes(questionStarters[i]) && (lowercaseMessage.includes("red star") || lowercaseMessage.includes("red name")))
+		{
+			message.reply({content: "The red names are the names of players who chose to support the game by buying 650 tickets or 1400 tickets at one time."})
+			break;
+		}
+		if(lowercaseMessage.includes(questionStarters[i]) && (lowercaseMessage.includes("mime") || lowercaseMessage.includes("112")))
+		{
+			message.reply({content: "That's Mr. Mime, he's just vibin. He doesn't do anything."})
+			break;
+		}
+		if((lowercaseMessage.includes("any") || lowercaseMessage.includes("give me") || lowercaseMessage.includes("are there")) && lowercaseMessage.includes("code"))
+		{
+			message.reply({content: "The devs randomly create the codes and they typically expire after a few days or uses.\nIf the latest ones in <#764279333262852138> don't work it's unlikely there is any available.\nPlease do not ask for any codes and NEVER ask the devs for codes."});
+			return;
+		}
+	}
 
-    //Auto mod stuff
+	//DM REQUESTING SAVE CODE
+	if(message.channel.isDMBased())
+	{
+		if(bannedFromRoles.bannedFromRoles.includes(message.author.id))
+		{
+			message.reply("Your save was determined to be illegitimate either because you cheated or used a different users save. You will no longer be eligible for ranks on the server.");
+		}
+		else
+		{
+			log("received DM");
+			if(message.attachments.first())
+			{
+				if(message.attachments.first().name === `message.txt`)
+				{
+					request.get(message.attachments.first().url)
+						.on('error', console.error)
+						.pipe(fs.createWriteStream(__dirname + '/message.txt'))
+						.on('finish', function ()
+						{
+							fs.readFile(__dirname + '/message.txt', "utf8", (err, data) =>
+							{
+								var save = "";
 
-    // Enhanced scam detection with gaming-aware patterns
-    if (!message.channel.isDMBased() && message.guild.id == guildId && !message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-        var lowercaseMessage = message.content.toLowerCase();
-        var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
-        
-        // Built-in scam patterns
-        var builtInPatterns = [
-            {
-                trigger: ["telegram"],
-                suspicious: ["earn", "profit", "teach", "show you", "pay me", "interested people", "drop a message", "get started", "within", "hours", "days"],
-                minSuspicious: 2,
-                reason: "telegram financial scam",
-                action: "timeout"
-            },
-            {
-                trigger: ["verify", "scan"],
-                suspicious: ["account", "qr code", "qr-code", "steam", "link your", "connect your", "click here", "visit"],
-                minSuspicious: 1,
-                reason: "account verification scam",
-                action: "timeout"
-            },
-            {
-                trigger: ["pay me", "send me"],
-                suspicious: ["when you", "after you", "receive", "teach", "show", "method", "strategy"],
-                minSuspicious: 1,
-                reason: "payment request scam",
-                action: "timeout"
-            },
-            {
-                trigger: ["giveaway", "free nitro"],
-                suspicious: ["telegram", "scan", "verify", "qr", "dm me", "message me", "click", "visit"],
-                minSuspicious: 1,
-                reason: "giveaway verification scam",
-                action: "timeout"
-            },
-            {
-                trigger: ["teach you", "show you", "i'll teach"],
-                suspicious: ["telegram", "message me", "dm me", "interested people", "pay me", "percentage", "%"],
-                minSuspicious: 1,
-                reason: "mentoring scam",
-                action: "timeout"
-            }
-        ];
+								if(data.includes("|"))
+								{
+									var save = decodeSave(data);
+								}
 
-        // Check each pattern
-        for (let pattern of builtInPatterns) {
-            let hasTrigger = pattern.trigger.some(word => lowercaseMessage.includes(word));
-            if (hasTrigger) {
-                let suspiciousCount = pattern.suspicious.filter(word => lowercaseMessage.includes(word)).length;
-                
-                if (suspiciousCount >= pattern.minSuspicious) {
-                    console.log(`Scam detected: ${pattern.reason}, triggers: ${pattern.trigger}, suspicious: ${suspiciousCount}`);
-                    message.delete();
-                    
-                    if (pattern.action === "ban") {
-                        message.member.ban({ days: 7, reason: pattern.reason })
-                            .then(console.log)
-                            .catch(console.error);
-                        
-                        message.member.send(`You have been banned from the Mr. Mine Discord for ${pattern.reason}.`)
-                            .then(console.log)
-                            .catch(console.error);
-                            
-                        auditChannel.send({ content: `Banned <@${message.member.id}> for ${pattern.reason}. Message: \`\`\`${message.content}\`\`\`` });
-                    } else {
-                        // 24 hour timeout
-                        message.member.timeout(24 * 60 * 60 * 1000, pattern.reason)
-                            .then(console.log)
-                            .catch(console.error);
+								if(save.length < 450)
+								{
+									message.reply("Your save is missing data, please make sure to paste all of the text. It's okay if Discord asks you to convert it to a file.\nIf you sent me your save by clicking on my name on the right pannel and pasting the text in the little box, Discord automatically cuts the text to 500 characters. So please send it from the actual DM page.")
+								}
+								else
+								{
+									checkSave(save, data, message);
+								}
+							})
+						})
 
-                        message.member.send(`You have been timed out for 24 hours from the Mr. Mine Discord for possible ${pattern.reason}. Contact a moderator if you believe this was a mistake.`)
-                            .then(console.log)
-                            .catch(console.error);
+				}
+			}
+			else if(message.content.length > 200 && message.content.includes("|") && !message.content.includes(" "))
+			{
+				var save = decodeSave(message.content);
 
-                        auditChannel.send({ content: `Timed out <@${message.member.id}> for possible ${pattern.reason}. Message: \`\`\`${message.content}\`\`\`` });
-                    }
-                    break;
-                }
-            }
-        }
-    }
+				if(save.length < 450)
+				{
+					message.reply("Your save is missing data, please make sure to paste all of the text. It's okay if Discord asks you to convert it to a file.\nIf you sent me your save by clicking on my name on the right pannel and pasting the text in the little box, Discord automatically cuts the text to 500 characters. So please send it from this DM actual DM page.")
+				}
+				else
+				{
+					checkSave(save, data, message);
+				}
+			}
+			else
+			{
+				log(message.content);
+			}
+		}
+	}
 
-    if (message.content.includes("Checkout this game I am playing https://play.google.com")) {
-        message.delete();
-    }
+	if(message.channel.id == 761441663397789696 && !message.content.toLowerCase().startsWith("report:"))
+	{
+		log(message.content);
+		if(!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
+		{
+			message.delete();
+			message.member.send({content: "Hey, it appears you posted in the bug reports channel with out the proper format. If your message was a bug report, please edit it to include \"report:\" , preferably including the game version and patch letter, and resend it to the bug reports channel, thanks! \n\n Message Copy: " + message.content})
+				.then(console.log)
+				.catch(console.error);
 
+			message.channel.send({content: "Please only use this channel for bug reports. All messages should start with \"Report:\". Discussions should be had in <#760967463684276278>. If you have more information you want to add, like the game version and patch letter, please edit your report with more details. If your message was a report, a copy of it has been sent to your DM's."})
+				.then(console.log)
+				.catch(console.error);
+		}
+	}
 
-    if (!message.channel.isDMBased()) {
-        if (message.guild.id == guildId) {
-            if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-                getNumberOfRoles(message.author.id)
-                    .then((numRoles) => {
-                        var lowercaseMessage = message.content.toLowerCase();
-                        if ((lowercaseMessage.includes("@everyone") || lowercaseMessage.includes("free") || lowercaseMessage.includes("steam") || lowercaseMessage.includes("airdrop")) && (lowercaseMessage.includes("nitro") || lowercaseMessage.includes("nltro")) && (message.embeds.length > 0 || lowercaseMessage.includes("https:/"))) {
-                            console.log(message.content);
-                            var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
-                            message.delete();
-                            message.member.ban({ days: 7, reason: 'posting nitro scam' })
-                                .then(console.log)
-                                .catch(console.error);
+	// Mobile bug reports channel moderation
+	if(message.channel.id == 1423422234990739627 && !message.content.toLowerCase().startsWith("report android:") && !message.content.toLowerCase().startsWith("report ios:"))
+	{
+		log(message.content);
+		if(!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
+		{
+			message.delete();
+			message.member.send({content: "Hey, it appears you posted in the mobile bug reports channel without the proper format. If your message was a bug report, please edit it to include \"Report Android:\" or \"Report IOS:\" and resend it to the mobile bug reports channel, thanks! \n\n Message Copy: " + message.content})
+				.then(console.log)
+				.catch(console.error);
 
-                            auditChannel.send({ content: `Banned <@${message.member.id}> for posting nitro scam. Message content: \`\`\`${message.content}\`\`\`` })
-                        }
-                    });
-            }
+			message.channel.send({content: "Please only use this channel for bug reports for the Mobile v46 Update. All messages should start with \"Report Android:\" or \"Report IOS:\" . Discussions should be had in <#760967463684276278>. If you have more information you want to add please edit your report with more details. If your message was a report, a copy of it has been sent to your DM's."})
+				.then(console.log)
+				.catch(console.error);
+		}
+	}
 
 
-            if (message.content.toLowerCase().includes("discord.gg")) {
-                var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
-                if (memberJoinTime > currentTime - 43200000) {
-                    message.delete();
-                    log("Link posted by " + message.author.username);
-                    message.member.send("Do not post links to other Discord Servers")
-                        .then(console.log)
-                        .catch(console.error);
+	if(message.channel.id == 761441702753206273)
+	{
+		if(!message.content.toLowerCase().startsWith("idea:") && !message.content.toLowerCase().startsWith("suggestion:"))
+		{
+			log(message.content);
+			if(!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
+			{
+				message.delete();
+				message.member.send({content: "Hey, it appears you posted in the ideas and suggestions channel with out the proper format. If your message was an idea, please edit it to include \"idea:\" and resend it to the ideas channel, thanks! \n\n Message Copy:" + message.content})
+					.then(console.log)
+					.catch(console.error);
 
-                    auditChannel.send({ content: `Warned <@${message.member.id}> for posting links to a different Discord server.` })
-                }
-            }
+				message.channel.send({content: "Please only use this channel for ideas and suggestions. All messages should start with \"Idea:\". Discussions should be had in <#760967463684276278>. If you have more information you want to add, please edit your idea with more details."})
+					.then(console.log)
+					.catch(console.error);
+			}
+		}
+		else
+		{
+			message.react('👍');
+			message.react('👎');
+		}
+	}
 
-            if (memberJoinTime > currentTime - 43200000) {
-                var autoBanWords = ["nigger", "nigga", "jew", "n1gger", "n!gger"];
-                var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
-
-                for (i = 0; i < autoBanWords.length; i++) {
-                    if (message.content.toLowerCase().includes(autoBanWords[i])) {
-                        message.delete();
-
-                        message.member.send("You have been banned from the Mr. Mine Discord for posting racist comments.")
-                            .then(console.log)
-                            .catch(console.error);
-
-                        message.member.ban({ days: 7, reason: 'Posted racist comments' })
-                            .then(console.log)
-                            .catch(console.error);
+	//Auto mod stuff
 
 
-                        auditChannel.send({ content: `Banned <@${message.member.id}> for posting racist comments.` })
-                    }
-                }
 
-                if (userMessageHistory[message.author.id]) {
-                    userMessageHistory[message.author.id].push(currentTime);
+	if(message.content.includes("Checkout this game I am playing https://play.google.com")) 
+	{
+		message.delete();
+	}
 
-                    if (userMessageHistory[message.author.id].length > 6) {
-                        userMessageHistory[message.author.id] = userMessageHistory[message.author.id].slice(-6);
 
-                        if (userMessageHistory[message.author.id][0] - userMessageHistory[message.author.id][5] > -8000) {
-                            if (message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return;
-                            var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
-                            
-                            // Delete recent messages from this user in this channel (message frequency spam)
-                            message.channel.messages.fetch({ limit: 20 })
-                                .then(messages => {
-                                    const userMessages = messages.filter(msg => 
-                                        msg.author.id === message.author.id && 
-                                        msg.createdTimestamp > Date.now() - 30000 // Last 30 seconds
-                                    );
-                                    message.channel.bulkDelete(userMessages).catch(console.error);
-                                })
-                                .catch(console.error);
+	if(!message.channel.isDMBased())
+	{
+		if(message.guild.id == guildId)
+		{
+			if(!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
+			{
+				getNumberOfRoles(message.author.id)
+					.then((numRoles) =>
+					{
+						var lowercaseMessage = message.content.toLowerCase();
+						if((lowercaseMessage.includes("@everyone") || lowercaseMessage.includes("free") || lowercaseMessage.includes("steam") || lowercaseMessage.includes("airdrop")) && (lowercaseMessage.includes("nitro") || lowercaseMessage.includes("nltro")) && (message.embeds.length > 0 || lowercaseMessage.includes("https:/"))) 
+						{
+							console.log(message.content);
+							var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
+							message.delete();
+							message.member.ban({days: 7, reason: 'posting nitro scam'})
+								.then(console.log)
+								.catch(console.error);
 
-                            message.member.send("You have been banned for spamming")
-                                .then(console.log)
-                                .catch(console.error);
+							auditChannel.send({content: `Banned <@${message.member.id}> for posting nitro scam. Message content: \`\`\`${message.content}\`\`\``})
+						}
+					});
+			}
 
-                            message.member.ban({ days: 7, reason: 'spamming' })
-                                .then(console.log)
-                                .catch(console.error);
 
-                            auditChannel.send({ content: `Banned <@${message.member.id}> for spamming (posting 6 messages within 8 seconds)` })
-                        }
-                    }
-                }
-                else {
-                    userMessageHistory[message.author.id] = [currentTime];
-                }
-            }
+			if(message.content.toLowerCase().includes("discord.gg")) 
+			{
+				var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
+				if(memberJoinTime > currentTime - 43200000)
+				{
+					message.delete();
+					log("Link posted by " + message.author.username);
+					message.member.send("Do not post links to other Discord Servers")
+						.then(console.log)
+						.catch(console.error);
 
-            var channel = message.channel.id;
-            if (channelsPosttedIn[message.author.id]) {
-                let user = channelsPosttedIn[message.author.id];
-                let keys = Object.keys(user);
+					auditChannel.send({contnet: `Warned <@${message.member.id}> for posting links to a different Discord server.`})
+				}
+			}
 
-                user[channel] = currentTime;
+			if(memberJoinTime > currentTime - 43200000)
+			{
+				var autoBanWords = ["nigger", "nigga", "jew", "n1gger", "n!gger"];
+				var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
 
-                if (keys.length > 3) {
-                    delete user[keys[0]];
-                    keys = Object.keys(user);
-                }
+				for(i = 0; i < autoBanWords.length; i++)
+				{
+					if(message.content.toLowerCase().includes(autoBanWords[i]))
+					{
+						message.delete();
 
-                let messageHistory = [];
-                keys.forEach(key => messageHistory.push(user[key]));
-                var sortedHistory = messageHistory.sort((a, b) => a - b);
-                console.log(sortedHistory);
+						message.member.send("You have been banned from the Mr. Mine Discord for posting racist comments.")
+							.then(console.log)
+							.catch(console.error);
 
-                if (sortedHistory[0] - sortedHistory[3] > -10000) {
-                    console.log("posting too fast");
+						message.member.ban({days: 7, reason: 'Posted racist comments'})
+							.then(console.log)
+							.catch(console.error);
 
-                    if (message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return;
 
-                    var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
-                    
-                    // Delete recent messages from this user across multiple channels (channel hopping spam)
-                    const guild = message.guild;
-                    const channels = Object.keys(channelsPosttedIn[message.author.id]);
-                    
-                    channels.forEach(channelId => {
-                        const channel = guild.channels.cache.get(channelId);
-                        if (channel) {
-                            channel.messages.fetch({ limit: 20 })
-                                .then(messages => {
-                                    const userMessages = messages.filter(msg => 
-                                        msg.author.id === message.author.id && 
-                                        msg.createdTimestamp > Date.now() - 15000 // Last 15 seconds
-                                    );
-                                    channel.bulkDelete(userMessages).catch(console.error);
-                                })
-                                .catch(console.error);
-                        }
-                    });
+						auditChannel.send({content: `Banned <@${message.member.id}> for posting racist comments.`})
+					}
+				}
 
-                    message.member.send("You have been banned for spamming")
-                        .then(console.log)
-                        .catch(console.error);
+				if(userMessageHistory[message.author.id])
+				{
+					userMessageHistory[message.author.id].push(currentTime);
 
-                    message.member.ban({ days: 7, reason: 'spamming' })
-                        .then(console.log)
-                        .catch(console.error);
+					if(userMessageHistory[message.author.id].length > 6)
+					{
+						userMessageHistory[message.author.id] = userMessageHistory[message.author.id].slice(-6);
 
-                    auditChannel.send({ content: `Banned <@${message.member.id}> for spamming (posting to 4 different channels within 10 seconds). Message content: \`\`\`${message.content}\`\`\`` })
-                }
-            }
-            else {
-                channelsPosttedIn[message.author.id] = { [channel]: currentTime };
-            }
-        }
-    }
+						if(userMessageHistory[message.author.id][0] - userMessageHistory[message.author.id][5] > -8000)
+						{
+							if(message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return;
+							var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
+							message.delete();
+
+							message.member.send("You have been banned for spamming")
+								.then(console.log)
+								.catch(console.error);
+
+							message.member.ban({days: 7, reason: 'spamming'})
+								.then(console.log)
+								.catch(console.error);
+
+							auditChannel.send({content: `Banned <@${message.member.id}> for spamming (posting 6 messages within 8 seconds)`})
+						}
+					}
+				}
+				else
+				{
+					userMessageHistory[message.author.id] = [currentTime];
+				}
+			}
+
+			var channel = message.channel.id;
+			if(channelsPosttedIn[message.author.id])
+			{
+				let user = channelsPosttedIn[message.author.id];
+				let keys = Object.keys(user);
+
+				user[channel] = currentTime;
+
+				if(keys.length > 3)
+				{
+					delete user[keys[0]];
+					keys = Object.keys(user);
+				}
+
+				let messageHistory = [];
+				keys.forEach(key => messageHistory.push(user[key]));
+				var sortedHistory = messageHistory.sort((a, b) => a - b);
+				console.log(sortedHistory);
+
+				if(sortedHistory[0] - sortedHistory[3] > -10000)
+				{
+					console.log("posting too fast");
+
+					if(message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return;
+
+					var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
+					message.delete();
+
+					message.member.send("You have been banned for spamming")
+						.then(console.log)
+						.catch(console.error);
+
+					message.member.ban({days: 7, reason: 'spamming'})
+						.then(console.log)
+						.catch(console.error);
+
+					auditChannel.send({content: `Banned <@${message.member.id}> for spamming (posting to 4 different channels within 10 seconds). Message content: \`\`\`${message.content}\`\`\``})
+				}
+			}
+			else
+			{
+				channelsPosttedIn[message.author.id] = {[channel]: currentTime};
+			}
+		}
+	}
 });
 
 
