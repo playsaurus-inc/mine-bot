@@ -349,7 +349,7 @@ bot.on(Events.MessageCreate, message =>
 	}
 
 	// Mobile bug reports channel moderation
-	if(message.channel.id == 1423422234990739627 && !message.content.toLowerCase().startsWith("report android:") && !message.content.toLowerCase().startsWith("report ios:"))
+	if(message.channel.id == 1427421373248180324 && !message.content.toLowerCase().startsWith("report android:") && !message.content.toLowerCase().startsWith("report ios:"))
 	{
 		log(message.content);
 		if(!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
