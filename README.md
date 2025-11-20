@@ -41,6 +41,14 @@ node index.js
 
 If the configuration is correct, the bot should appear online in Discord, and its slash commands will be registered/updated for the specified guild.
 
+## 🧹 Code Quality
+
+This project uses [Biome](https://biomejs.dev/) for consistent code style and quality:
+
+```bash
+npm run biome
+```
+
 ## 🚢 Deployment
 
 Simply create a new release in GitHub and the website will be automatically deployed to the server.
