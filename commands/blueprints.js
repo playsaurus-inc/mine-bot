@@ -1,5 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const util = require('util');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -14,7 +13,7 @@ module.exports = {
 		),
 
 	async execute(interaction) {
-		const { channel, options } = interaction;
+		const { options } = interaction;
 		var shared =
 			options.getBoolean('ephemeral') == null
 				? true

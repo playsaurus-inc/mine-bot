@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const util = require('util');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -20,7 +19,7 @@ module.exports = {
 		),
 
 	async execute(interaction) {
-		const { channel, options } = interaction;
+		const { options } = interaction;
 		const user = options.getUser('user');
 		const reason = options.getString('reason');
 

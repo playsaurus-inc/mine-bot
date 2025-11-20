@@ -25,7 +25,6 @@ if (process.env.SENTRY_DSN) {
 	});
 }
 
-const util = require('util');
 const request = require('request');
 const atob = require('atob');
 const token = process.env.DISCORD_TOKEN;
@@ -39,7 +38,6 @@ const {
 	Events,
 	GatewayIntentBits,
 	Partials,
-	PermissionFlagsBits,
 	PermissionsBitField,
 } = require('discord.js');
 const fs = require('fs');
@@ -59,7 +57,6 @@ const bot = new Client({
 		repliedUser: true,
 	},
 });
-var messageText;
 var userMessageHistory = {};
 var channelsPosttedIn = []; //should refactor to be a part of user message history
 
@@ -182,19 +179,19 @@ function log(log) {
 }
 
 function getRoles() {
-	return new Promise((res, rej) => {
+	return new Promise((res) => {
 		res(bot.guilds.cache.get(guildId).roles);
 	});
 }
 
 function getGuildMember(userID) {
-	return new Promise((res, rej) => {
+	return new Promise((res) => {
 		res(bot.guilds.cache.get(guildId).members.fetch(userID));
 	});
 }
 
 function getNumberOfRoles(userID) {
-	return new Promise((res, rej) => {
+	return new Promise((res) => {
 		res(
 			getGuildMember(userID).then((member) => {
 				var numRoles = member.roles.cache.map((role) => role.toString());
@@ -210,7 +207,6 @@ function setRole(depth, message) {
 	if (bannedFromRoles.bannedFromRoles.includes(userID)) return;
 	getGuildMember(userID)
 		.then((guildMember) => {
-			var { cache } = guildMember.guild.roles;
 			var rollAdded = false;
 			log('adding role');
 
