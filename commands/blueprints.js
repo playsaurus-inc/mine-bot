@@ -14,12 +14,7 @@ module.exports = {
 
 	async execute(interaction) {
 		const { options } = interaction;
-		var shared =
-			options.getBoolean('ephemeral') == null
-				? true
-				: options.getBoolean('ephemeral')
-					? true
-					: false;
+		var shared = options.getBoolean('ephemeral') ?? true;
 
 		await interaction.reply({
 			content:
