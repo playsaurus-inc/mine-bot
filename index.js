@@ -256,7 +256,7 @@ function checkSave(save, data, message) {
 		.members.cache.get(message.author.id);
 
 	for (var i = 0; i < JSONsaves['saves'].length; i++) {
-		if (JSONsaves['saves'][i].gameUID && !isNaN(gameUID)) {
+		if (JSONsaves['saves'][i].gameUID && gameUID && !isNaN(gameUID)) {
 			if (
 				(!userBanned &&
 					String(JSONsaves['saves'][i].gameUID) === String(gameUID) &&
@@ -380,7 +380,7 @@ bot.on(Events.MessageCreate, (message) => {
 								var save = '';
 
 								if (data.includes('|')) {
-									var save = decodeSave(data);
+									save = decodeSave(data);
 								}
 
 								if (save.length < 450) {
@@ -535,7 +535,7 @@ bot.on(Events.MessageCreate, (message) => {
 						(message.embeds.length > 0 || lowercaseMessage.includes('https:/'))
 					) {
 						console.log(message.content);
-						var auditChannel = message.guild.channels.cache.find(
+						const auditChannel = message.guild.channels.cache.find(
 							(channel) => channel.name === 'audit-log',
 						);
 						message.delete();
@@ -552,7 +552,7 @@ bot.on(Events.MessageCreate, (message) => {
 			}
 
 			if (message.content.toLowerCase().includes('discord.gg')) {
-				var auditChannel = message.guild.channels.cache.find(
+				const auditChannel = message.guild.channels.cache.find(
 					(channel) => channel.name === 'audit-log',
 				);
 				if (memberJoinTime > currentTime - 43200000) {
@@ -571,7 +571,7 @@ bot.on(Events.MessageCreate, (message) => {
 
 			if (memberJoinTime > currentTime - 43200000) {
 				var autoBanWords = ['nigger', 'nigga', 'jew', 'n1gger', 'n!gger'];
-				var auditChannel = message.guild.channels.cache.find(
+				const auditChannel = message.guild.channels.cache.find(
 					(channel) => channel.name === 'audit-log',
 				);
 
@@ -615,7 +615,7 @@ bot.on(Events.MessageCreate, (message) => {
 								)
 							)
 								return;
-							var auditChannel = message.guild.channels.cache.find(
+							const auditChannel = message.guild.channels.cache.find(
 								(channel) => channel.name === 'audit-log',
 							);
 							message.delete();
@@ -667,7 +667,7 @@ bot.on(Events.MessageCreate, (message) => {
 					)
 						return;
 
-					var auditChannel = message.guild.channels.cache.find(
+					const auditChannel = message.guild.channels.cache.find(
 						(channel) => channel.name === 'audit-log',
 					);
 					message.delete();
