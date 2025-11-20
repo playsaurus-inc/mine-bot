@@ -1,4 +1,29 @@
 require('dotenv').config();
+const Sentry = require("@sentry/node");
+const { execSync } = require('child_process');
+
+/**
+ * Retrieves the latest Git tag.
+ *
+ * @returns {string|undefined} The latest Git tag or undefined if not found.
+ */
+function getGitTag() {
+    try {
+        return execSync('git describe --tags --abbrev=0').toString().trim();
+    } catch (error) {
+        return undefined;
+    }
+}
+
+// Initialize Sentry
+if (process.env.SENTRY_DSN) {
+    Sentry.init({
+        dsn: process.env.SENTRY_DSN,
+        environment: process.env.APP_ENV || 'production',
+        release: getGitTag(),
+    });
+}
+
 const util = require('util');
 const request = require('request');
 const atob = require('atob');
@@ -394,7 +419,7 @@ bot.on(Events.MessageCreate, message =>
 
 
 
-	if(message.content.includes("Checkout this game I am playing https://play.google.com")) 
+	if(message.content.includes("Checkout this game I am playing https://play.google.com"))
 	{
 		message.delete();
 	}
@@ -410,7 +435,7 @@ bot.on(Events.MessageCreate, message =>
 					.then((numRoles) =>
 					{
 						var lowercaseMessage = message.content.toLowerCase();
-						if((lowercaseMessage.includes("@everyone") || lowercaseMessage.includes("free") || lowercaseMessage.includes("steam") || lowercaseMessage.includes("airdrop")) && (lowercaseMessage.includes("nitro") || lowercaseMessage.includes("nltro")) && (message.embeds.length > 0 || lowercaseMessage.includes("https:/"))) 
+						if((lowercaseMessage.includes("@everyone") || lowercaseMessage.includes("free") || lowercaseMessage.includes("steam") || lowercaseMessage.includes("airdrop")) && (lowercaseMessage.includes("nitro") || lowercaseMessage.includes("nltro")) && (message.embeds.length > 0 || lowercaseMessage.includes("https:/")))
 						{
 							console.log(message.content);
 							var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
@@ -425,7 +450,7 @@ bot.on(Events.MessageCreate, message =>
 			}
 
 
-			if(message.content.toLowerCase().includes("discord.gg")) 
+			if(message.content.toLowerCase().includes("discord.gg"))
 			{
 				var auditChannel = message.guild.channels.cache.find(channel => channel.name === "audit-log");
 				if(memberJoinTime > currentTime - 43200000)
