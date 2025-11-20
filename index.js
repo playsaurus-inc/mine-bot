@@ -259,8 +259,8 @@ function checkSave(save, data, message) {
 		if (JSONsaves['saves'][i].gameUID && !isNaN(gameUID)) {
 			if (
 				(!userBanned &&
-					JSONsaves['saves'][i].gameUID == gameUID &&
-					JSONsaves['saves'][i].userID != message.author.id) ||
+					String(JSONsaves['saves'][i].gameUID) === String(gameUID) &&
+					String(JSONsaves['saves'][i].userID) !== String(message.author.id)) ||
 				tickets > 20000
 			) {
 				userBanned = true;
@@ -414,7 +414,7 @@ bot.on(Events.MessageCreate, (message) => {
 	}
 
 	if (
-		message.channel.id == 761441663397789696 &&
+		message.channel.id === '761441663397789696' &&
 		!message.content.toLowerCase().startsWith('report:')
 	) {
 		log(message.content);
@@ -443,7 +443,7 @@ bot.on(Events.MessageCreate, (message) => {
 
 	// Mobile bug reports channel moderation
 	if (
-		message.channel.id == 1427421373248180324 &&
+		message.channel.id === '1427421373248180324' &&
 		!message.content.toLowerCase().startsWith('report android:') &&
 		!message.content.toLowerCase().startsWith('report ios:')
 	) {
@@ -471,7 +471,7 @@ bot.on(Events.MessageCreate, (message) => {
 		}
 	}
 
-	if (message.channel.id == 761441702753206273) {
+	if (message.channel.id === '761441702753206273') {
 		if (
 			!message.content.toLowerCase().startsWith('idea:') &&
 			!message.content.toLowerCase().startsWith('suggestion:')
@@ -517,7 +517,7 @@ bot.on(Events.MessageCreate, (message) => {
 	}
 
 	if (!message.channel.isDMBased()) {
-		if (message.guild.id == guildId) {
+		if (message.guild.id === guildId) {
 			if (
 				!message.member.permissions.has(
 					PermissionsBitField.Flags.ManageMessages,
