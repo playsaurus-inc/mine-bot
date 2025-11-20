@@ -1,6 +1,6 @@
 require('dotenv').config();
 const Sentry = require('@sentry/node');
-const { execSync } = require('child_process');
+const { execSync } = require('node:child_process');
 
 /**
  * Retrieves the latest Git tag.
@@ -10,7 +10,7 @@ const { execSync } = require('child_process');
 function getGitTag() {
 	try {
 		return execSync('git describe --tags --abbrev=0').toString().trim();
-	} catch (error) {
+	} catch (_error) {
 		return undefined;
 	}
 }
@@ -40,9 +40,9 @@ const {
 	Partials,
 	PermissionsBitField,
 } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
-const JSONbig = require('json-bigint')({ useNativeBigInt: true });
+const fs = require('node:fs');
+const path = require('node:path');
+const _JSONbig = require('json-bigint')({ useNativeBigInt: true });
 const bot = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
@@ -119,26 +119,26 @@ var bannedFromRoles;
 setInterval(
 	() => {
 		log('writing to files');
-		fs.writeFileSync(__dirname + '/saves.json', JSON.stringify(JSONsaves));
+		fs.writeFileSync(`${__dirname}/saves.json`, JSON.stringify(JSONsaves));
 		fs.writeFileSync(
-			__dirname + '/bannedSaves.json',
+			`${__dirname}/bannedSaves.json`,
 			JSON.stringify(JSONBannedsaves),
 		);
 	},
 	1000 * 60 * 5,
 );
 
-fs.readFile(__dirname + '/saves.json', (err, data) => {
+fs.readFile(`${__dirname}/saves.json`, (err, data) => {
 	if (err) throw err;
 	JSONsaves = JSON.parse(data);
 });
 
-fs.readFile(__dirname + '/bannedSaves.json', (err, data) => {
+fs.readFile(`${__dirname}/bannedSaves.json`, (err, data) => {
 	if (err) throw err;
 	JSONBannedsaves = JSON.parse(data);
 });
 
-fs.readFile(__dirname + '/bannedFromRoles.json', (err, data) => {
+fs.readFile(`${__dirname}/bannedFromRoles.json`, (err, data) => {
 	if (err) throw err;
 	bannedFromRoles = JSON.parse(data);
 });
@@ -176,12 +176,6 @@ function log(log) {
 			'] ' +
 			log,
 	);
-}
-
-function getRoles() {
-	return new Promise((res) => {
-		res(bot.guilds.cache.get(guildId).roles);
-	});
 }
 
 function getGuildMember(userID) {
@@ -255,12 +249,12 @@ function checkSave(save, data, message) {
 		.get(guildId)
 		.members.cache.get(message.author.id);
 
-	for (var i = 0; i < JSONsaves['saves'].length; i++) {
-		if (JSONsaves['saves'][i].gameUID && gameUID && !isNaN(gameUID)) {
+	for (var i = 0; i < JSONsaves.saves.length; i++) {
+		if (JSONsaves.saves[i].gameUID && gameUID && !Number.isNaN(gameUID)) {
 			if (
 				(!userBanned &&
-					String(JSONsaves['saves'][i].gameUID) === String(gameUID) &&
-					String(JSONsaves['saves'][i].userID) !== String(message.author.id)) ||
+					String(JSONsaves.saves[i].gameUID) === String(gameUID) &&
+					String(JSONsaves.saves[i].userID) !== String(message.author.id)) ||
 				tickets > 20000
 			) {
 				userBanned = true;
@@ -280,7 +274,7 @@ function checkSave(save, data, message) {
 		!userBanned &&
 		!bannedFromRoles.bannedFromRoles.includes(message.author.id)
 	) {
-		JSONsaves['saves'].push({
+		JSONsaves.saves.push({
 			userID: message.author.id,
 			depth: depth,
 			timeplayed: Math.round(timeplayed),
@@ -291,11 +285,11 @@ function checkSave(save, data, message) {
 		bannedFromRoles.bannedFromRoles.push(message.author.id);
 		var edited_bannedFromRoles = JSON.stringify(bannedFromRoles);
 		fs.writeFileSync(
-			__dirname + '/bannedFromRoles.json',
+			`${__dirname}/bannedFromRoles.json`,
 			edited_bannedFromRoles,
 		);
 
-		JSONBannedsaves['saves'].push({
+		JSONBannedsaves.saves.push({
 			userID: message.author.id,
 			depth: depth,
 			timeplayed: Math.round(timeplayed),
@@ -374,9 +368,9 @@ bot.on(Events.MessageCreate, (message) => {
 					request
 						.get(message.attachments.first().url)
 						.on('error', console.error)
-						.pipe(fs.createWriteStream(__dirname + '/message.txt'))
+						.pipe(fs.createWriteStream(`${__dirname}/message.txt`))
 						.on('finish', () => {
-							fs.readFile(__dirname + '/message.txt', 'utf8', (err, data) => {
+							fs.readFile(`${__dirname}/message.txt`, 'utf8', (_err, data) => {
 								var save = '';
 
 								if (data.includes('|')) {
@@ -523,7 +517,7 @@ bot.on(Events.MessageCreate, (message) => {
 					PermissionsBitField.Flags.ManageMessages,
 				)
 			) {
-				getNumberOfRoles(message.author.id).then((numRoles) => {
+				getNumberOfRoles(message.author.id).then((_numRoles) => {
 					var lowercaseMessage = message.content.toLowerCase();
 					if (
 						(lowercaseMessage.includes('@everyone') ||
@@ -557,7 +551,7 @@ bot.on(Events.MessageCreate, (message) => {
 				);
 				if (memberJoinTime > currentTime - 43200000) {
 					message.delete();
-					log('Link posted by ' + message.author.username);
+					log(`Link posted by ${message.author.username}`);
 					message.member
 						.send('Do not post links to other Discord Servers')
 						.then(console.log)

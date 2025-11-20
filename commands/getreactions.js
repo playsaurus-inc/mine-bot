@@ -3,7 +3,7 @@ const {
 	AttachmentBuilder,
 	PermissionFlagsBits,
 } = require('discord.js');
-const fs = require('fs');
+const fs = require('node:fs');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -149,7 +149,7 @@ ${userList}\n`);
 			}
 
 			// Save to a text file
-			const fileName = `reactions_${messageID}${emojiFilter ? '_' + emojiFilter.replace(/[^a-zA-Z0-9]/g, '') : ''}.txt`;
+			const fileName = `reactions_${messageID}${emojiFilter ? `_${emojiFilter.replace(/[^a-zA-Z0-9]/g, '')}` : ''}.txt`;
 			const fileContent = `Total reactions: ${totalUsers}\n\n${reactionData.join('\n')}`;
 			fs.writeFileSync(fileName, fileContent, 'utf8');
 
