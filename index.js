@@ -249,7 +249,7 @@ function checkSave(save, data, message) {
 		.get(guildId)
 		.members.cache.get(message.author.id);
 
-	for (var i = 0; i < JSONsaves.saves.length; i++) {
+	for (let i = 0; i < JSONsaves.saves.length; i++) {
 		if (JSONsaves.saves[i].gameUID && gameUID && !Number.isNaN(gameUID)) {
 			if (
 				(!userBanned &&
@@ -283,7 +283,7 @@ function checkSave(save, data, message) {
 		});
 	} else if (!bannedFromRoles.bannedFromRoles.includes(message.author.id)) {
 		bannedFromRoles.bannedFromRoles.push(message.author.id);
-		var edited_bannedFromRoles = JSON.stringify(bannedFromRoles);
+		const edited_bannedFromRoles = JSON.stringify(bannedFromRoles);
 		fs.writeFileSync(
 			`${__dirname}/bannedFromRoles.json`,
 			edited_bannedFromRoles,
@@ -318,7 +318,7 @@ bot.on(Events.MessageCreate, (message) => {
 
 	var questionStarters = ['what', 'any idea', 'why', 'whats'];
 
-	for (var i = 0; i < questionStarters.length; i++) {
+	for (let i = 0; i < questionStarters.length; i++) {
 		const lowercaseMessage = message.content.toLowerCase();
 
 		if (
@@ -392,7 +392,7 @@ bot.on(Events.MessageCreate, (message) => {
 				message.content.includes('|') &&
 				!message.content.includes(' ')
 			) {
-				var save = decodeSave(message.content);
+				const save = decodeSave(message.content);
 
 				if (save.length < 450) {
 					message.reply(
@@ -564,7 +564,7 @@ bot.on(Events.MessageCreate, (message) => {
 			}
 
 			if (memberJoinTime > currentTime - 43200000) {
-				var autoBanWords = ['nigger', 'nigga', 'jew', 'n1gger', 'n!gger'];
+				const autoBanWords = ['nigger', 'nigga', 'jew', 'n1gger', 'n!gger'];
 				const auditChannel = message.guild.channels.cache.find(
 					(channel) => channel.name === 'audit-log',
 				);
@@ -634,7 +634,7 @@ bot.on(Events.MessageCreate, (message) => {
 				}
 			}
 
-			var channel = message.channel.id;
+			const channel = message.channel.id;
 			if (channelsPosttedIn[message.author.id]) {
 				const user = channelsPosttedIn[message.author.id];
 				let keys = Object.keys(user);
@@ -647,8 +647,10 @@ bot.on(Events.MessageCreate, (message) => {
 				}
 
 				const messageHistory = [];
-				keys.forEach((key) => messageHistory.push(user[key]));
-				var sortedHistory = messageHistory.sort((a, b) => a - b);
+				keys.forEach((key) => {
+					messageHistory.push(user[key]);
+				});
+				const sortedHistory = messageHistory.sort((a, b) => a - b);
 				console.log(sortedHistory);
 
 				if (sortedHistory[0] - sortedHistory[3] > -10000) {
