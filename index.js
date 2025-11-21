@@ -22,9 +22,9 @@ if (process.env.SENTRY_DSN) {
 		release: getGitTag(),
 		integrations: [Sentry.captureConsoleIntegration({ levels: ['error'] })],
 	});
-    console.log('Sentry initialized');
+	console.log('Sentry initialized');
 } else {
-    console.log('Sentry DSN not provided, Sentry not initialized');
+	console.log('Sentry DSN not provided, Sentry not initialized');
 }
 
 const request = require('request');
