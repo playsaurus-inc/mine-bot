@@ -20,7 +20,10 @@ if (process.env.SENTRY_DSN) {
 		dsn: process.env.SENTRY_DSN,
 		environment: process.env.APP_ENV || 'production',
 		release: getGitTag(),
-		integrations: [Sentry.captureConsoleIntegration({ levels: ['error'] })],
+		integrations: (defaults) => [
+			...defaults,
+			Sentry.captureConsoleIntegration({ levels: ['error'] }),
+		],
 	});
 	console.log('Sentry initialized');
 } else {
