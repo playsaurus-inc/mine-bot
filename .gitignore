@@ -18,6 +18,7 @@ remind.json
 message.txt
 reactions_*.txt
 *.log
+logs/
 
 # IDE / Editor specific
 .vscode/

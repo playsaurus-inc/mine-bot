@@ -30,6 +30,37 @@ if (process.env.SENTRY_DSN) {
 	console.log('Sentry DSN not provided, Sentry not initialized');
 }
 
+// Global error handlers to catch silent crashes
+process.on('unhandledRejection', (reason, promise) => {
+	console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	Sentry.captureException(reason);
+});
+
+process.on('uncaughtException', (error) => {
+	console.error('Uncaught Exception:', error);
+	Sentry.captureException(error);
+	// Give Sentry time to send the error before exiting
+	Sentry.close(2000).then(() => {
+		process.exit(1);
+	});
+});
+
+process.on('SIGTERM', () => {
+	console.log('Received SIGTERM, shutting down gracefully...');
+	bot.destroy();
+	Sentry.close(2000).then(() => {
+		process.exit(0);
+	});
+});
+
+process.on('SIGINT', () => {
+	console.log('Received SIGINT, shutting down gracefully...');
+	bot.destroy();
+	Sentry.close(2000).then(() => {
+		process.exit(0);
+	});
+});
+
 const request = require('request');
 const atob = require('atob');
 const token = process.env.DISCORD_TOKEN;
@@ -117,36 +148,69 @@ const rest = new REST({ version: '10' }).setToken(token);
 	}
 })();
 
-var JSONsaves;
-var JSONBannedsaves;
-var bannedFromRoles;
+var JSONsaves = { saves: [] };
+var JSONBannedsaves = { saves: [] };
+var bannedFromRoles = { bannedFromRoles: [] };
+var dataLoaded = false;
 
+/**
+ * Safely reads and parses a JSON file, returning a default value if it fails.
+ */
+function safeReadJsonFile(filePath, defaultValue) {
+	try {
+		if (fs.existsSync(filePath)) {
+			const data = fs.readFileSync(filePath, 'utf8');
+			return JSON.parse(data);
+		}
+		console.log(`File not found, using defaults: ${filePath}`);
+		return defaultValue;
+	} catch (error) {
+		console.error(`Error reading ${filePath}:`, error);
+		Sentry.captureException(error);
+		return defaultValue;
+	}
+}
+
+/**
+ * Safely writes JSON data to a file.
+ */
+function safeWriteJsonFile(filePath, data) {
+	try {
+		fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+	} catch (error) {
+		console.error(`Error writing ${filePath}:`, error);
+		Sentry.captureException(error);
+	}
+}
+
+/**
+ * Initialize data files synchronously at startup.
+ */
+function initializeData() {
+	console.log('Loading data files...');
+	JSONsaves = safeReadJsonFile(`${__dirname}/saves.json`, { saves: [] });
+	JSONBannedsaves = safeReadJsonFile(`${__dirname}/bannedSaves.json`, { saves: [] });
+	bannedFromRoles = safeReadJsonFile(`${__dirname}/bannedFromRoles.json`, { bannedFromRoles: [] });
+	dataLoaded = true;
+	console.log('Data files loaded successfully');
+}
+
+// Load data before starting the bot
+initializeData();
+
+// Only write to files if data has been loaded
 setInterval(
 	() => {
+		if (!dataLoaded) {
+			console.log('Skipping file write - data not yet loaded');
+			return;
+		}
 		log('writing to files');
-		fs.writeFileSync(`${__dirname}/saves.json`, JSON.stringify(JSONsaves));
-		fs.writeFileSync(
-			`${__dirname}/bannedSaves.json`,
-			JSON.stringify(JSONBannedsaves),
-		);
+		safeWriteJsonFile(`${__dirname}/saves.json`, JSONsaves);
+		safeWriteJsonFile(`${__dirname}/bannedSaves.json`, JSONBannedsaves);
 	},
 	1000 * 60 * 5,
 );
-
-fs.readFile(`${__dirname}/saves.json`, (err, data) => {
-	if (err) throw err;
-	JSONsaves = JSON.parse(data);
-});
-
-fs.readFile(`${__dirname}/bannedSaves.json`, (err, data) => {
-	if (err) throw err;
-	JSONBannedsaves = JSON.parse(data);
-});
-
-fs.readFile(`${__dirname}/bannedFromRoles.json`, (err, data) => {
-	if (err) throw err;
-	bannedFromRoles = JSON.parse(data);
-});
 
 bot.on(Events.InteractionCreate, async (interaction) => {
 	if (!interaction.isChatInputCommand()) return;
@@ -184,20 +248,17 @@ function log(log) {
 }
 
 function getGuildMember(userID) {
-	return new Promise((res) => {
-		res(bot.guilds.cache.get(guildId).members.fetch(userID));
-	});
+	const guild = bot.guilds.cache.get(guildId);
+	if (!guild) {
+		return Promise.reject(new Error(`Guild ${guildId} not found in cache`));
+	}
+	return guild.members.fetch(userID);
 }
 
-function getNumberOfRoles(userID) {
-	return new Promise((res) => {
-		res(
-			getGuildMember(userID).then((member) => {
-				var numRoles = member.roles.cache.map((role) => role.toString());
-				return numRoles.length;
-			}),
-		);
-	});
+async function getNumberOfRoles(userID) {
+	const member = await getGuildMember(userID);
+	const numRoles = member.roles.cache.map((role) => role.toString());
+	return numRoles.length;
 }
 
 function setRole(depth, message) {
@@ -288,11 +349,7 @@ function checkSave(save, data, message) {
 		});
 	} else if (!bannedFromRoles.bannedFromRoles.includes(message.author.id)) {
 		bannedFromRoles.bannedFromRoles.push(message.author.id);
-		const edited_bannedFromRoles = JSON.stringify(bannedFromRoles);
-		fs.writeFileSync(
-			`${__dirname}/bannedFromRoles.json`,
-			edited_bannedFromRoles,
-		);
+		safeWriteJsonFile(`${__dirname}/bannedFromRoles.json`, bannedFromRoles);
 
 		JSONBannedsaves.saves.push({
 			userID: message.author.id,
@@ -694,6 +751,59 @@ bot.on(Events.MessageCreate, (message) => {
 	}
 });
 
-bot.on('error', console.error);
+// Discord.js error and warning handlers
+bot.on('error', (error) => {
+	console.error('Discord.js error:', error);
+	Sentry.captureException(error);
+});
+
+bot.on('warn', (warning) => {
+	console.warn('Discord.js warning:', warning);
+});
+
+bot.on('shardError', (error, shardId) => {
+	console.error(`Shard ${shardId} error:`, error);
+	Sentry.captureException(error);
+});
+
+bot.on('shardDisconnect', (event, shardId) => {
+	console.log(`Shard ${shardId} disconnected:`, event);
+});
+
+bot.on('shardReconnecting', (shardId) => {
+	console.log(`Shard ${shardId} reconnecting...`);
+});
+
+// Memory cleanup - runs every hour to prevent memory leaks
+setInterval(() => {
+	const oneHourAgo = Date.now() - 60 * 60 * 1000;
+
+	// Clean up old user message history entries
+	for (const userId in userMessageHistory) {
+		const timestamps = userMessageHistory[userId];
+		if (Array.isArray(timestamps) && timestamps.length > 0) {
+			const mostRecent = Math.max(...timestamps);
+			if (mostRecent < oneHourAgo) {
+				delete userMessageHistory[userId];
+			}
+		}
+	}
+
+	// Clean up old channel posting history
+	for (const userId in channelsPosttedIn) {
+		const channels = channelsPosttedIn[userId];
+		if (channels && typeof channels === 'object') {
+			const timestamps = Object.values(channels);
+			if (timestamps.length > 0) {
+				const mostRecent = Math.max(...timestamps);
+				if (mostRecent < oneHourAgo) {
+					delete channelsPosttedIn[userId];
+				}
+			}
+		}
+	}
+
+	log(`Memory cleanup complete. Tracked users: ${Object.keys(userMessageHistory).length}, Channel history: ${Object.keys(channelsPosttedIn).length}`);
+}, 60 * 60 * 1000); // Run every hour
 
 bot.login(token);

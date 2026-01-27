@@ -13,8 +13,11 @@ git pull --tags origin production
 # Install dependencies
 npm install --production
 
-# Restart the application using PM2
-pm2 reload "$APP_NAME" || pm2 start index.js --name "$APP_NAME"
+# Ensure logs directory exists
+mkdir -p logs
+
+# Restart the application using PM2 ecosystem config
+pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
 
 pm2 save
 
