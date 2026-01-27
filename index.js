@@ -189,8 +189,12 @@ function safeWriteJsonFile(filePath, data) {
 function initializeData() {
 	console.log('Loading data files...');
 	JSONsaves = safeReadJsonFile(`${__dirname}/saves.json`, { saves: [] });
-	JSONBannedsaves = safeReadJsonFile(`${__dirname}/bannedSaves.json`, { saves: [] });
-	bannedFromRoles = safeReadJsonFile(`${__dirname}/bannedFromRoles.json`, { bannedFromRoles: [] });
+	JSONBannedsaves = safeReadJsonFile(`${__dirname}/bannedSaves.json`, {
+		saves: [],
+	});
+	bannedFromRoles = safeReadJsonFile(`${__dirname}/bannedFromRoles.json`, {
+		bannedFromRoles: [],
+	});
 	dataLoaded = true;
 	console.log('Data files loaded successfully');
 }
@@ -775,35 +779,40 @@ bot.on('shardReconnecting', (shardId) => {
 });
 
 // Memory cleanup - runs every hour to prevent memory leaks
-setInterval(() => {
-	const oneHourAgo = Date.now() - 60 * 60 * 1000;
+setInterval(
+	() => {
+		const oneHourAgo = Date.now() - 60 * 60 * 1000;
 
-	// Clean up old user message history entries
-	for (const userId in userMessageHistory) {
-		const timestamps = userMessageHistory[userId];
-		if (Array.isArray(timestamps) && timestamps.length > 0) {
-			const mostRecent = Math.max(...timestamps);
-			if (mostRecent < oneHourAgo) {
-				delete userMessageHistory[userId];
-			}
-		}
-	}
-
-	// Clean up old channel posting history
-	for (const userId in channelsPosttedIn) {
-		const channels = channelsPosttedIn[userId];
-		if (channels && typeof channels === 'object') {
-			const timestamps = Object.values(channels);
-			if (timestamps.length > 0) {
+		// Clean up old user message history entries
+		for (const userId in userMessageHistory) {
+			const timestamps = userMessageHistory[userId];
+			if (Array.isArray(timestamps) && timestamps.length > 0) {
 				const mostRecent = Math.max(...timestamps);
 				if (mostRecent < oneHourAgo) {
-					delete channelsPosttedIn[userId];
+					delete userMessageHistory[userId];
 				}
 			}
 		}
-	}
 
-	log(`Memory cleanup complete. Tracked users: ${Object.keys(userMessageHistory).length}, Channel history: ${Object.keys(channelsPosttedIn).length}`);
-}, 60 * 60 * 1000); // Run every hour
+		// Clean up old channel posting history
+		for (const userId in channelsPosttedIn) {
+			const channels = channelsPosttedIn[userId];
+			if (channels && typeof channels === 'object') {
+				const timestamps = Object.values(channels);
+				if (timestamps.length > 0) {
+					const mostRecent = Math.max(...timestamps);
+					if (mostRecent < oneHourAgo) {
+						delete channelsPosttedIn[userId];
+					}
+				}
+			}
+		}
+
+		log(
+			`Memory cleanup complete. Tracked users: ${Object.keys(userMessageHistory).length}, Channel history: ${Object.keys(channelsPosttedIn).length}`,
+		);
+	},
+	60 * 60 * 1000,
+); // Run every hour
 
 bot.login(token);
