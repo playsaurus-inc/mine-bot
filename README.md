@@ -59,6 +59,25 @@ Simply create a new release in GitHub and the website will be automatically depl
 > [!NOTE]
 > Always create releases from the `main` branch to ensure all tested changes are included in the deployment.
 
+
+**Deploy script used in Forge:**
+
+```bash
+cd /home/forge/mine-bot
+
+git pull --tags origin $FORGE_SITE_BRANCH
+
+# Ensure logs directory exists
+mkdir -p logs
+
+npm install --omit=dev
+
+# Restart the application using PM2 ecosystem config
+pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
+
+pm2 save
+```
+
 ## 📜 License
 
 This project is licensed under the MIT License (as specified in `package.json`).
