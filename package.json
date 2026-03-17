@@ -2,22 +2,24 @@
 	"name": "minebot",
 	"version": "1.0.0",
 	"description": "bot for discord",
-	"main": "index.js",
+	"type": "module",
+	"main": "src/index.ts",
 	"author": "McNiiby",
 	"license": "MIT",
 	"scripts": {
-		"start": "node index.js",
+		"start": "tsx src/index.ts",
+		"typecheck": "tsc --noEmit",
 		"biome": "npx @biomejs/biome check . --write"
 	},
 	"dependencies": {
 		"@sentry/node": "^10.26.0",
-		"atob": "^2.1.2",
 		"discord.js": "^14.6.0",
-		"dotenv": "^17.2.2",
-		"json-bigint": "^1.0.0",
-		"request": "^2.88.2"
+		"dotenv": "^17.2.2"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.6"
+		"@biomejs/biome": "2.3.6",
+		"@types/node": "^22.0.0",
+		"tsx": "^4.19.0",
+		"typescript": "^5.7.0"
 	}
 }
