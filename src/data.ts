@@ -15,9 +15,12 @@ export const store: DataStore = {
 export function loadData(): void {
 	console.log('Loading data files...');
 
-	const savesData = safeReadJsonFile<{ saves: SaveEntry[] }>(join(DATA_DIR, 'saves.json'), {
-		saves: [],
-	});
+	const savesData = safeReadJsonFile<{ saves: SaveEntry[] }>(
+		join(DATA_DIR, 'saves.json'),
+		{
+			saves: [],
+		},
+	);
 	const bannedSavesData = safeReadJsonFile<{ saves: BannedSaveEntry[] }>(
 		join(DATA_DIR, 'bannedSaves.json'),
 		{ saves: [] },
@@ -37,7 +40,9 @@ export function loadData(): void {
 /** Persists saves and banned saves to disk. Called periodically. */
 export function persistData(): void {
 	safeWriteJsonFile(join(DATA_DIR, 'saves.json'), { saves: store.saves });
-	safeWriteJsonFile(join(DATA_DIR, 'bannedSaves.json'), { saves: store.bannedSaves });
+	safeWriteJsonFile(join(DATA_DIR, 'bannedSaves.json'), {
+		saves: store.bannedSaves,
+	});
 }
 
 /** Persists the banned-from-roles list immediately. Called when a user is banned. */

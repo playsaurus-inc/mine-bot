@@ -1,5 +1,5 @@
-import { SlashCommandBuilder } from 'discord.js';
 import type { ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('lint')
@@ -12,11 +12,14 @@ export const data = new SlashCommandBuilder()
 			),
 	);
 
-export async function execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<void> {
+export async function execute(
+	interaction: ChatInputCommandInteraction<'cached'>,
+): Promise<void> {
 	const ephemeral = interaction.options.getBoolean('ephemeral') ?? true;
 
 	await interaction.reply({
-		content: 'Pieces of Lint are likely nothing. Probably best to throw them down a hole...',
+		content:
+			'Pieces of Lint are likely nothing. Probably best to throw them down a hole...',
 		ephemeral,
 	});
 }

@@ -15,17 +15,25 @@ export function registerMessageCreate(client: Client): void {
 		// Auto-responses for common game questions
 		const hasQuestionStarter = QUESTION_STARTERS.some((s) => lc.includes(s));
 
-		if (hasQuestionStarter && (lc.includes('red star') || lc.includes('red name'))) {
+		if (
+			hasQuestionStarter &&
+			(lc.includes('red star') || lc.includes('red name'))
+		) {
 			await message.reply({
 				content:
 					'The red names are the names of players who chose to support the game by buying 650 tickets or 1400 tickets at one time.',
 			});
-		} else if (hasQuestionStarter && (lc.includes('mime') || lc.includes('112'))) {
+		} else if (
+			hasQuestionStarter &&
+			(lc.includes('mime') || lc.includes('112'))
+		) {
 			await message.reply({
 				content: "That's Mr. Mime, he's just vibin. He doesn't do anything.",
 			});
 		} else if (
-			(lc.includes('any') || lc.includes('give me') || lc.includes('are there')) &&
+			(lc.includes('any') ||
+				lc.includes('give me') ||
+				lc.includes('are there')) &&
 			lc.includes('code')
 		) {
 			await message.reply({

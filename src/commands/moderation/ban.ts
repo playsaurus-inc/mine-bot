@@ -1,5 +1,9 @@
-import { ChannelType, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import type { ChatInputCommandInteraction, TextChannel } from 'discord.js';
+import {
+	ChannelType,
+	PermissionFlagsBits,
+	SlashCommandBuilder,
+} from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('ban')
@@ -9,10 +13,15 @@ export const data = new SlashCommandBuilder()
 		option.setName('user').setDescription('the user to ban').setRequired(true),
 	)
 	.addStringOption((option) =>
-		option.setName('reason').setDescription('the reason the user was banned').setRequired(true),
+		option
+			.setName('reason')
+			.setDescription('the reason the user was banned')
+			.setRequired(true),
 	);
 
-export async function execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<void> {
+export async function execute(
+	interaction: ChatInputCommandInteraction<'cached'>,
+): Promise<void> {
 	const user = interaction.options.getUser('user', true);
 	const reason = interaction.options.getString('reason', true);
 

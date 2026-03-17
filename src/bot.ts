@@ -2,7 +2,14 @@ import { readdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as Sentry from '@sentry/node';
-import { Client, Collection, Events, GatewayIntentBits, Partials, REST, Routes } from 'discord.js';
+import {
+	Client,
+	Collection,
+	GatewayIntentBits,
+	Partials,
+	REST,
+	Routes,
+} from 'discord.js';
 import { config } from './config.ts';
 import { loadData, persistData } from './data.ts';
 import { registerInteractionCreate } from './events/interactionCreate.ts';
@@ -43,14 +50,18 @@ async function loadCommands(): Promise<Command[]> {
 
 		for (const file of files) {
 			const filePath = join(categoryPath, file);
-			const module = (await import(pathToFileURL(filePath).href)) as Partial<Command>;
+			const module = (await import(
+				pathToFileURL(filePath).href
+			)) as Partial<Command>;
 
 			if ('data' in module && 'execute' in module) {
 				const command = module as Command;
 				client.commands.set(command.data.name, command);
 				loadedCommands.push(command);
 			} else {
-				console.warn(`[WARNING] Command at ${filePath} is missing a required "data" or "execute" property.`);
+				console.warn(
+					`[WARNING] Command at ${filePath} is missing a required "data" or "execute" property.`,
+				);
 			}
 		}
 	}
@@ -65,10 +76,15 @@ async function deployCommands(commands: Command[]): Promise<void> {
 	console.log(`Started refreshing ${body.length} application (/) commands.`);
 
 	try {
-		const data = (await rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId), {
-			body,
-		})) as unknown[];
-		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+		const data = (await rest.put(
+			Routes.applicationGuildCommands(config.clientId, config.guildId),
+			{
+				body,
+			},
+		)) as unknown[];
+		console.log(
+			`Successfully reloaded ${data.length} application (/) commands.`,
+		);
 	} catch (error) {
 		console.error('Failed to deploy commands:', error);
 		Sentry.captureException(error);
@@ -108,15 +124,21 @@ export async function startBot(): Promise<void> {
 	registerMessageCreate(client);
 
 	// Persist saves every 5 minutes
-	setInterval(() => {
-		log('writing to files');
-		persistData();
-	}, 1000 * 60 * 5);
+	setInterval(
+		() => {
+			log('writing to files');
+			persistData();
+		},
+		1000 * 60 * 5,
+	);
 
 	// Clean up in-memory spam tracking every hour
-	setInterval(() => {
-		cleanupAutomodState();
-	}, 60 * 60 * 1000);
+	setInterval(
+		() => {
+			cleanupAutomodState();
+		},
+		60 * 60 * 1000,
+	);
 
 	await client.login(config.discordToken);
 }

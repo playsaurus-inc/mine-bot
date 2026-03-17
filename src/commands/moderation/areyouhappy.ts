@@ -1,5 +1,5 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import type { ChatInputCommandInteraction } from 'discord.js';
+import { PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('areyouhappy')
@@ -9,7 +9,9 @@ export const data = new SlashCommandBuilder()
 		option.setName('user').setDescription('the user to ping').setRequired(true),
 	);
 
-export async function execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<void> {
+export async function execute(
+	interaction: ChatInputCommandInteraction<'cached'>,
+): Promise<void> {
 	const user = interaction.options.getUser('user', true);
 	const channel = interaction.channel;
 

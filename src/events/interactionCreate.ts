@@ -10,7 +10,9 @@ export function registerInteractionCreate(client: Client): void {
 		const command = interaction.client.commands.get(interaction.commandName);
 
 		if (!command) {
-			console.error(`No command matching ${interaction.commandName} was found.`);
+			console.error(
+				`No command matching ${interaction.commandName} was found.`,
+			);
 			return;
 		}
 

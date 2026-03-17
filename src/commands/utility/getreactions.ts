@@ -1,10 +1,21 @@
 import * as fs from 'node:fs';
-import { AttachmentBuilder, Collection, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
-import type { ChatInputCommandInteraction, MessageReaction, User } from 'discord.js';
+import type {
+	ChatInputCommandInteraction,
+	MessageReaction,
+	User,
+} from 'discord.js';
+import {
+	AttachmentBuilder,
+	Collection,
+	PermissionFlagsBits,
+	SlashCommandBuilder,
+} from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('getreactions')
-	.setDescription('Fetch all reactions from a message and save them to a categorized text file.')
+	.setDescription(
+		'Fetch all reactions from a message and save them to a categorized text file.',
+	)
 	.addStringOption((option) =>
 		option
 			.setName('messageid')
@@ -14,7 +25,9 @@ export const data = new SlashCommandBuilder()
 	.addStringOption((option) =>
 		option
 			.setName('emoji')
-			.setDescription('Specific emoji to filter reactions (e.g., :cookie: or 🍪)')
+			.setDescription(
+				'Specific emoji to filter reactions (e.g., :cookie: or 🍪)',
+			)
 			.setRequired(false),
 	)
 	.setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
@@ -39,7 +52,9 @@ async function fetchAllUsers(reaction: MessageReaction): Promise<User[]> {
 	return allUsers;
 }
 
-export async function execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<void> {
+export async function execute(
+	interaction: ChatInputCommandInteraction<'cached'>,
+): Promise<void> {
 	const messageID = interaction.options.getString('messageid', true);
 	const emojiFilter = interaction.options.getString('emoji');
 
@@ -83,16 +98,22 @@ export async function execute(interaction: ChatInputCommandInteraction<'cached'>
 				if (emoji.name) {
 					return emoji.name === cleanEmoji || emoji.toString() === emojiFilter;
 				} else {
-					return emoji.toString() === emojiFilter || emoji.toString() === cleanEmoji;
+					return (
+						emoji.toString() === emojiFilter || emoji.toString() === cleanEmoji
+					);
 				}
 			});
 
 			if (!matchingReaction) {
-				await interaction.editReply(`No reactions found for emoji: ${emojiFilter}`);
+				await interaction.editReply(
+					`No reactions found for emoji: ${emojiFilter}`,
+				);
 				return;
 			}
 
-			targetReactions = new Collection([[matchingReaction.emoji.toString(), matchingReaction]]);
+			targetReactions = new Collection([
+				[matchingReaction.emoji.toString(), matchingReaction],
+			]);
 		}
 
 		const reactionData: string[] = [];
@@ -100,13 +121,19 @@ export async function execute(interaction: ChatInputCommandInteraction<'cached'>
 
 		for (const [emoji, reaction] of targetReactions) {
 			const users = await fetchAllUsers(reaction);
-			const userList = users.map((user) => `${user.tag} (${user.id})`).join('\n');
+			const userList = users
+				.map((user) => `${user.tag} (${user.id})`)
+				.join('\n');
 			totalUsers += users.length;
-			reactionData.push(`Emoji: ${emoji} (${users.length} users)\nUsers:\n${userList}\n`);
+			reactionData.push(
+				`Emoji: ${emoji} (${users.length} users)\nUsers:\n${userList}\n`,
+			);
 		}
 
 		if (reactionData.length === 0) {
-			await interaction.editReply('No reactions found for the specified criteria.');
+			await interaction.editReply(
+				'No reactions found for the specified criteria.',
+			);
 			return;
 		}
 
@@ -120,7 +147,9 @@ export async function execute(interaction: ChatInputCommandInteraction<'cached'>
 			files: [attachment],
 		});
 
-		await interaction.editReply(`Reaction data has been sent to your DMs. Found ${totalUsers} total users.`);
+		await interaction.editReply(
+			`Reaction data has been sent to your DMs. Found ${totalUsers} total users.`,
+		);
 
 		fs.unlinkSync(fileName);
 	} catch (error) {

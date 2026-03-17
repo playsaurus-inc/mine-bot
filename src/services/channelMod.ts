@@ -1,4 +1,4 @@
-import { PermissionsBitField, type Message } from 'discord.js';
+import { type Message, PermissionsBitField } from 'discord.js';
 import { config } from '../config.ts';
 
 const BUG_REPORTS_CHANNEL = '761441663397789696';
@@ -6,10 +6,15 @@ const MOBILE_BUG_REPORTS_CHANNEL = '1427421373248180324';
 const IDEAS_CHANNEL = '761441702753206273';
 
 function hasModPerms(message: Message<true>): boolean {
-	return message.member?.permissions.has(PermissionsBitField.Flags.ManageMessages) ?? false;
+	return (
+		message.member?.permissions.has(PermissionsBitField.Flags.ManageMessages) ??
+		false
+	);
 }
 
-export async function handleChannelModeration(message: Message<true>): Promise<void> {
+export async function handleChannelModeration(
+	message: Message<true>,
+): Promise<void> {
 	if (message.guild.id !== config.guildId) return;
 
 	await handleSpamLink(message);
@@ -19,7 +24,11 @@ export async function handleChannelModeration(message: Message<true>): Promise<v
 }
 
 async function handleSpamLink(message: Message<true>): Promise<void> {
-	if (message.content.includes('Checkout this game I am playing https://play.google.com')) {
+	if (
+		message.content.includes(
+			'Checkout this game I am playing https://play.google.com',
+		)
+	) {
 		await message.delete();
 	}
 }
@@ -43,13 +52,15 @@ async function handleBugReportsChannel(message: Message<true>): Promise<void> {
 	message.channel
 		.send({
 			content:
-				"Please only use this channel for bug reports. All messages should start with \"Report:\". Discussions should be had in <#760967463684276278>. If you have more information you want to add, like the game version and patch letter, please edit your report with more details. If your message was a report, a copy of it has been sent to your DM's.",
+				'Please only use this channel for bug reports. All messages should start with "Report:". Discussions should be had in <#760967463684276278>. If you have more information you want to add, like the game version and patch letter, please edit your report with more details. If your message was a report, a copy of it has been sent to your DM\'s.',
 		})
 		.then(console.log)
 		.catch(console.error);
 }
 
-async function handleMobileBugReportsChannel(message: Message<true>): Promise<void> {
+async function handleMobileBugReportsChannel(
+	message: Message<true>,
+): Promise<void> {
 	if (message.channel.id !== MOBILE_BUG_REPORTS_CHANNEL) return;
 
 	const lc = message.content.toLowerCase();
@@ -70,7 +81,7 @@ async function handleMobileBugReportsChannel(message: Message<true>): Promise<vo
 	message.channel
 		.send({
 			content:
-				"Please only use this channel for bug reports for the Mobile v46 Update. All messages should start with \"Report Android:\" or \"Report IOS:\" . Discussions should be had in <#760967463684276278>. If you have more information you want to add please edit your report with more details. If your message was a report, a copy of it has been sent to your DM's.",
+				'Please only use this channel for bug reports for the Mobile v46 Update. All messages should start with "Report Android:" or "Report IOS:" . Discussions should be had in <#760967463684276278>. If you have more information you want to add please edit your report with more details. If your message was a report, a copy of it has been sent to your DM\'s.',
 		})
 		.then(console.log)
 		.catch(console.error);

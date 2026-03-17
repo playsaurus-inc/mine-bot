@@ -1,4 +1,9 @@
-import { ChannelType, PermissionsBitField, type Message, type TextChannel } from 'discord.js';
+import {
+	ChannelType,
+	type Message,
+	PermissionsBitField,
+	type TextChannel,
+} from 'discord.js';
 import { config } from '../config.ts';
 import { log } from '../utils/logger.ts';
 
@@ -10,12 +15,16 @@ const AUTO_BAN_WORDS = ['nigger', 'nigga', 'jew', 'n1gger', 'n!gger'];
 
 function getAuditChannel(message: Message<true>): TextChannel | undefined {
 	return message.guild.channels.cache.find(
-		(ch): ch is TextChannel => ch.name === 'audit-log' && ch.type === ChannelType.GuildText,
+		(ch): ch is TextChannel =>
+			ch.name === 'audit-log' && ch.type === ChannelType.GuildText,
 	);
 }
 
 function hasModPerms(message: Message<true>): boolean {
-	return message.member?.permissions.has(PermissionsBitField.Flags.ManageMessages) ?? false;
+	return (
+		message.member?.permissions.has(PermissionsBitField.Flags.ManageMessages) ??
+		false
+	);
 }
 
 export async function runAutomod(message: Message<true>): Promise<void> {
@@ -43,7 +52,10 @@ async function checkNitroScam(message: Message<true>): Promise<void> {
 	const lc = message.content.toLowerCase();
 
 	const isNitroScam =
-		(lc.includes('@everyone') || lc.includes('free') || lc.includes('steam') || lc.includes('airdrop')) &&
+		(lc.includes('@everyone') ||
+			lc.includes('free') ||
+			lc.includes('steam') ||
+			lc.includes('airdrop')) &&
 		(lc.includes('nitro') || lc.includes('nltro')) &&
 		(message.embeds.length > 0 || lc.includes('https:/'));
 
@@ -51,19 +63,29 @@ async function checkNitroScam(message: Message<true>): Promise<void> {
 
 	console.log(message.content);
 	await message.delete();
-	message.member?.ban({ deleteMessageSeconds: 7 * 24 * 60 * 60, reason: 'posting nitro scam' }).catch(console.error);
+	message.member
+		?.ban({
+			deleteMessageSeconds: 7 * 24 * 60 * 60,
+			reason: 'posting nitro scam',
+		})
+		.catch(console.error);
 	getAuditChannel(message)?.send({
 		content: `Banned <@${message.member?.id}> for posting nitro scam. Message content: \`\`\`${message.content}\`\`\``,
 	});
 }
 
-async function checkDiscordLinks(message: Message<true>, isNewMember: boolean): Promise<void> {
+async function checkDiscordLinks(
+	message: Message<true>,
+	isNewMember: boolean,
+): Promise<void> {
 	if (!isNewMember) return;
 	if (!message.content.toLowerCase().includes('discord.gg')) return;
 
 	await message.delete();
 	log(`Link posted by ${message.author.username}`);
-	message.member?.send('Do not post links to other Discord Servers').catch(console.error);
+	message.member
+		?.send('Do not post links to other Discord Servers')
+		.catch(console.error);
 	getAuditChannel(message)?.send({
 		content: `Warned <@${message.member?.id}> for posting links to a different Discord server.`,
 	});
@@ -76,8 +98,17 @@ async function checkRacistWords(message: Message<true>): Promise<void> {
 		if (!lc.includes(word)) continue;
 
 		await message.delete();
-		message.member?.send('You have been banned from the Mr. Mine Discord for posting racist comments.').catch(console.error);
-		message.member?.ban({ deleteMessageSeconds: 7 * 24 * 60 * 60, reason: 'Posted racist comments' }).catch(console.error);
+		message.member
+			?.send(
+				'You have been banned from the Mr. Mine Discord for posting racist comments.',
+			)
+			.catch(console.error);
+		message.member
+			?.ban({
+				deleteMessageSeconds: 7 * 24 * 60 * 60,
+				reason: 'Posted racist comments',
+			})
+			.catch(console.error);
 		getAuditChannel(message)?.send({
 			content: `Banned <@${message.member?.id}> for posting racist comments.`,
 		});
@@ -85,7 +116,10 @@ async function checkRacistWords(message: Message<true>): Promise<void> {
 	}
 }
 
-async function checkMessageSpam(message: Message<true>, currentTime: number): Promise<void> {
+async function checkMessageSpam(
+	message: Message<true>,
+	currentTime: number,
+): Promise<void> {
 	const userId = message.author.id;
 
 	if (!userMessageHistory[userId]) {
@@ -110,14 +144,21 @@ async function checkMessageSpam(message: Message<true>, currentTime: number): Pr
 	if (hasModPerms(message)) return;
 
 	await message.delete();
-	message.member?.send('You have been banned for spamming').catch(console.error);
-	message.member?.ban({ deleteMessageSeconds: 7 * 24 * 60 * 60, reason: 'spamming' }).catch(console.error);
+	message.member
+		?.send('You have been banned for spamming')
+		.catch(console.error);
+	message.member
+		?.ban({ deleteMessageSeconds: 7 * 24 * 60 * 60, reason: 'spamming' })
+		.catch(console.error);
 	getAuditChannel(message)?.send({
 		content: `Banned <@${message.member?.id}> for spamming (posting 6 messages within 8 seconds)`,
 	});
 }
 
-async function checkChannelSpam(message: Message<true>, currentTime: number): Promise<void> {
+async function checkChannelSpam(
+	message: Message<true>,
+	currentTime: number,
+): Promise<void> {
 	const userId = message.author.id;
 	const channelId = message.channel.id;
 
@@ -138,19 +179,26 @@ async function checkChannelSpam(message: Message<true>, currentTime: number): Pr
 		keys = Object.keys(user);
 	}
 
-	const timestamps = keys.map((k) => user[k]).sort((a, b) => (a ?? 0) - (b ?? 0));
+	const timestamps = keys
+		.map((k) => user[k])
+		.sort((a, b) => (a ?? 0) - (b ?? 0));
 	console.log(timestamps);
 
 	const oldest = timestamps[0];
 	const newest = timestamps[3];
-	if (timestamps.length < 4 || oldest === undefined || newest === undefined) return;
+	if (timestamps.length < 4 || oldest === undefined || newest === undefined)
+		return;
 	if (oldest - newest <= -10000) return;
 
 	if (hasModPerms(message)) return;
 
 	await message.delete();
-	message.member?.send('You have been banned for spamming').catch(console.error);
-	message.member?.ban({ deleteMessageSeconds: 7 * 24 * 60 * 60, reason: 'spamming' }).catch(console.error);
+	message.member
+		?.send('You have been banned for spamming')
+		.catch(console.error);
+	message.member
+		?.ban({ deleteMessageSeconds: 7 * 24 * 60 * 60, reason: 'spamming' })
+		.catch(console.error);
 	getAuditChannel(message)?.send({
 		content: `Banned <@${message.member?.id}> for spamming (posting to 4 different channels within 10 seconds). Message content: \`\`\`${message.content}\`\`\``,
 	});

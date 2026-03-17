@@ -10,7 +10,9 @@ import { setRole } from './roles.ts';
  * Replaces the deprecated `atob` npm package with Node.js built-in Buffer.
  */
 function decodeSave(data: string): string[] {
-	const inner = Buffer.from(data.split('|')[1] ?? '', 'base64').toString('utf-8');
+	const inner = Buffer.from(data.split('|')[1] ?? '', 'base64').toString(
+		'utf-8',
+	);
 	const decoded = Buffer.from(inner, 'base64').toString('utf-8');
 	return decoded.split('|');
 }
@@ -38,7 +40,11 @@ export async function processDmMessage(message: Message): Promise<void> {
 		return;
 	}
 
-	if (message.content.length > 200 && message.content.includes('|') && !message.content.includes(' ')) {
+	if (
+		message.content.length > 200 &&
+		message.content.includes('|') &&
+		!message.content.includes(' ')
+	) {
 		await processSaveData(message.content, message);
 		return;
 	}
@@ -66,7 +72,11 @@ async function processSaveData(data: string, message: Message): Promise<void> {
 	await checkSave(save, data, message);
 }
 
-async function checkSave(save: string[], data: string, message: Message): Promise<void> {
+async function checkSave(
+	save: string[],
+	data: string,
+	message: Message,
+): Promise<void> {
 	log('checking save');
 
 	const depth = save[1] ?? '0';
