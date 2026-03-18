@@ -1,10 +1,10 @@
 # MineBot: Mr. Mine Discord Bot
 
-A Discord bot for the Mr. Mine Discord server, providing game information, moderation tools, and automated responses. The core functionality is located in `index.js`.
+A Discord bot for the Mr. Mine Discord server, providing game information, moderation tools, and automated responses.
 
 ## 👾 Features
 
--   Slash commands for game-specific information (e.g., `/faq`, `/bosses`, `/chests`). Find all commands in the `/commands` folder.
+-   Slash commands for game-specific information (e.g., `/faq`, `/bosses`, `/chests`). Find all commands in `src/commands/`.
 -   Moderation tools (e.g., `/ban`, `/kick`).
 -   Automatic role assignment based on user's in-game progress (via DMed save files).
 -   Automated responses to frequently asked questions.
@@ -36,10 +36,16 @@ Then, edit `.env` and provide:
 ### 3. Start the Bot
 
 ```bash
-node index.js
+npm start
 ```
 
 If the configuration is correct, the bot should appear online in Discord, and its slash commands will be registered/updated for the specified guild.
+
+To type-check without running:
+
+```bash
+npm run typecheck
+```
 
 ## 🧹 Code Quality
 
@@ -73,7 +79,7 @@ mkdir -p logs
 npm install --omit=dev
 
 # Restart the application using PM2 ecosystem config
-pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
+pm2 reload ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
 
 pm2 save
 ```
