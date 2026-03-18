@@ -7,6 +7,7 @@ import type {
 import {
 	AttachmentBuilder,
 	Collection,
+	MessageFlags,
 	PermissionFlagsBits,
 	SlashCommandBuilder,
 } from 'discord.js';
@@ -60,7 +61,7 @@ export async function execute(
 
 	await interaction.reply({
 		content: 'Fetching reactions... This might take a few seconds.',
-		ephemeral: true,
+		flags: MessageFlags.Ephemeral,
 	});
 
 	try {

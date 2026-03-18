@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('ufo')
@@ -20,6 +20,6 @@ export async function execute(
 	await interaction.reply({
 		content:
 			'The UFO is a clickable that comes to visit every 10 hours, real-time. It appears on the space between the Earth and the Moon and stays only for 15 minutes. Successfully clicking it grants you an achievement.\nMore details can be found here  <https://mrmine.fandom.com/wiki/UFO>',
-		ephemeral,
+		flags: ephemeral ? MessageFlags.Ephemeral : undefined,
 	});
 }

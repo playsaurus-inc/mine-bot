@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('city')
@@ -20,6 +20,6 @@ export async function execute(
 	await interaction.reply({
 		content:
 			'||The Underground City|| is located at ||303Km|| and is where you upgrade weapons, drill for oil and complete the 2nd lot of quests.',
-		ephemeral,
+		flags: ephemeral ? MessageFlags.Ephemeral : undefined,
 	});
 }

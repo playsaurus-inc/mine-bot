@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('monsters')
@@ -20,6 +20,6 @@ export async function execute(
 	await interaction.reply({
 		content:
 			'Monsters start attacking your miners from ||304Km||, you use weapons to fight them.\nThe background flashes red when a monster attack is happening.',
-		ephemeral,
+		flags: ephemeral ? MessageFlags.Ephemeral : undefined,
 	});
 }

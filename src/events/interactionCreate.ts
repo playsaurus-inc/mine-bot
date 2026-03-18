@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 import type { Client } from 'discord.js';
-import { Events } from 'discord.js';
+import { Events, MessageFlags } from 'discord.js';
 
 export function registerInteractionCreate(client: Client): void {
 	client.on(Events.InteractionCreate, async (interaction) => {
@@ -26,15 +26,16 @@ export function registerInteractionCreate(client: Client): void {
 				user: { id: interaction.user.id, username: interaction.user.username },
 			});
 
-			const errorMessage = {
-				content: 'There was an error while executing this command!',
-				ephemeral: true,
-			};
-
 			if (interaction.replied || interaction.deferred) {
-				await interaction.followUp(errorMessage);
+				await interaction.followUp({
+					content: 'There was an error while executing this command!',
+					flags: MessageFlags.Ephemeral,
+				});
 			} else {
-				await interaction.reply(errorMessage);
+				await interaction.reply({
+					content: 'There was an error while executing this command!',
+					flags: MessageFlags.Ephemeral,
+				});
 			}
 		}
 	});

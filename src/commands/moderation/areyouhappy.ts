@@ -1,5 +1,9 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+import {
+	MessageFlags,
+	PermissionFlagsBits,
+	SlashCommandBuilder,
+} from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('areyouhappy')
@@ -15,7 +19,10 @@ export async function execute(
 	const user = interaction.options.getUser('user', true);
 	const channel = interaction.channel;
 
-	await interaction.reply({ content: 'sending pings', ephemeral: true });
+	await interaction.reply({
+		content: 'sending pings',
+		flags: MessageFlags.Ephemeral,
+	});
 
 	if (!channel) return;
 

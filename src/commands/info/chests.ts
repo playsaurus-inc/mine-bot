@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('chests')
@@ -20,6 +20,6 @@ export async function execute(
 	await interaction.reply({
 		content:
 			"Chests are found by miners.\nThe deeper you go the more miners you have & the more chances of a chest being found.\nChests even spawn while at full capacity.\nGold chests are the rarest and have a 1/158 drop chance.\nThey contain the best rewards but it could take a long time to get what you want from them.\nChests have timers so it's best to check every 5-10 minutes for them before they expire as you wouldn't want to miss a gold one.",
-		ephemeral,
+		flags: ephemeral ? MessageFlags.Ephemeral : undefined,
 	});
 }
