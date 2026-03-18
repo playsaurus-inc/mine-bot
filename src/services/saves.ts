@@ -130,6 +130,6 @@ async function checkSave(
 	}
 }
 
+export type { DataStore };
 // Re-export store for use in message handler
 export { store as savesStore };
-export type { DataStore };
