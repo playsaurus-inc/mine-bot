@@ -1,6 +1,7 @@
 import type { ChatInputCommandInteraction, TextChannel } from 'discord.js';
 import {
 	ChannelType,
+	MessageFlags,
 	PermissionFlagsBits,
 	SlashCommandBuilder,
 } from 'discord.js';
@@ -25,7 +26,10 @@ export async function execute(
 	const user = interaction.options.getUser('user', true);
 	const reason = interaction.options.getString('reason', true);
 
-	await interaction.reply({ content: 'banning user', ephemeral: true });
+	await interaction.reply({
+		content: 'banning user',
+		flags: MessageFlags.Ephemeral,
+	});
 
 	// guild.bans.create accepts a User directly as a resolvable
 	await interaction.guild.bans.create(user, {

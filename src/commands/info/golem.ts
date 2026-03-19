@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('golem')
@@ -20,6 +20,6 @@ export async function execute(
 	await interaction.reply({
 		content:
 			'The Golem can be found at ||50Km||, he ||lives in a cave to the left|| and sells blueprints.',
-		ephemeral,
+		flags: ephemeral ? MessageFlags.Ephemeral : undefined,
 	});
 }

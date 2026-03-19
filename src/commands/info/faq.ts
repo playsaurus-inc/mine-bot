@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('faq')
@@ -19,6 +19,6 @@ export async function execute(
 
 	await interaction.reply({
 		content: '<https://mrmine.fandom.com/wiki/Frequently_Asked_Questions>',
-		ephemeral,
+		flags: ephemeral ? MessageFlags.Ephemeral : undefined,
 	});
 }

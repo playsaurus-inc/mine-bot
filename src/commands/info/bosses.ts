@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('bosses')
@@ -20,6 +20,6 @@ export async function execute(
 	await interaction.reply({
 		content:
 			'Bosses are always ||100km|| apart ( with an exception of ||1000km|| ), starting at ||400km|| with the first boss.\nThe bosses on the ||moon|| are just shifted a little bit and are starting at ||1132km|| and then the next one continuing after ||100km||.\nWhen you arrive at a km with a boss, your drill will stop digging any more km, until you defeat the boss.\nIf you lose the fight, nothing will happen and the boss will just be there, until you finally beat him.\nIf you cannot defeat the boss, try getting/upgrading some weapons or get some combat relics.',
-		ephemeral,
+		flags: ephemeral ? MessageFlags.Ephemeral : undefined,
 	});
 }

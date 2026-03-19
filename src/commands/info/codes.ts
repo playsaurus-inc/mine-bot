@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('codes')
@@ -20,6 +20,6 @@ export async function execute(
 	await interaction.reply({
 		content:
 			'The devs create the codes.\nThe codes are given out randomly.\nPlease do not ask for any codes.\nNEVER ask the devs for any codes.\nLook in <#764279333262852138> for codes.\nThe codes expire after a certain amount of time.',
-		ephemeral,
+		flags: ephemeral ? MessageFlags.Ephemeral : undefined,
 	});
 }
