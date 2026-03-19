@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import 'dotenv/config';
 import * as Sentry from '@sentry/node';
-import { client, startBot } from './bot.ts';
+import { Bot } from './bot.ts';
 
 function getGitTag(): string | undefined {
 	try {
@@ -30,6 +30,8 @@ function initSentry(): void {
 	console.log('Sentry initialized');
 }
 
+const bot = new Bot();
+
 function registerProcessHandlers(): void {
 	process.on('unhandledRejection', (reason) => {
 		console.error('Unhandled Rejection:', reason);
@@ -44,13 +46,13 @@ function registerProcessHandlers(): void {
 
 	process.on('SIGTERM', () => {
 		console.log('Received SIGTERM, shutting down gracefully...');
-		client.destroy();
+		bot.client.destroy();
 		Sentry.close(2000).then(() => process.exit(0));
 	});
 
 	process.on('SIGINT', () => {
 		console.log('Received SIGINT, shutting down gracefully...');
-		client.destroy();
+		bot.client.destroy();
 		Sentry.close(2000).then(() => process.exit(0));
 	});
 }
@@ -58,7 +60,7 @@ function registerProcessHandlers(): void {
 initSentry();
 registerProcessHandlers();
 
-startBot().catch((error: unknown) => {
+bot.start().catch((error: unknown) => {
 	console.error('Fatal error starting bot:', error);
 	Sentry.captureException(error);
 	Sentry.close(2000).then(() => process.exit(1));
