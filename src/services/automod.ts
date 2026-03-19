@@ -1,11 +1,33 @@
 import {
 	ChannelType,
+	DiscordAPIError,
 	type Message,
 	PermissionsBitField,
 	type TextChannel,
 } from 'discord.js';
+import * as Sentry from '@sentry/node';
 import { config } from '../config.ts';
 import { log } from '../utils/logger.ts';
+
+/** Discord API error codes that are expected and safe to ignore in automod. */
+const IGNORED_DISCORD_ERRORS = new Set([
+	10008, // Unknown Message - already deleted
+	50278, // Cannot send messages to this user - DMs disabled
+]);
+
+/**
+ * Silently ignores expected Discord API errors (e.g. message already deleted, DMs disabled)
+ * and reports anything unexpected to Sentry.
+ */
+function handleDiscordError(error: unknown): void {
+	if (
+		error instanceof DiscordAPIError &&
+		IGNORED_DISCORD_ERRORS.has(Number(error.code))
+	) {
+		return;
+	}
+	Sentry.captureException(error);
+}
 
 // Module-level state for spam tracking - intentionally process-scoped
 const userMessageHistory: Record<string, number[]> = {};
@@ -62,7 +84,7 @@ async function checkNitroScam(message: Message<true>): Promise<void> {
 	if (!isNitroScam) return;
 
 	console.log(message.content);
-	await message.delete();
+	await message.delete().catch(handleDiscordError);
 	message.member
 		?.ban({
 			deleteMessageSeconds: 7 * 24 * 60 * 60,
@@ -81,11 +103,11 @@ async function checkDiscordLinks(
 	if (!isNewMember) return;
 	if (!message.content.toLowerCase().includes('discord.gg')) return;
 
-	await message.delete();
+	await message.delete().catch(handleDiscordError);
 	log(`Link posted by ${message.author.username}`);
 	message.member
 		?.send('Do not post links to other Discord Servers')
-		.catch(console.error);
+		.catch(handleDiscordError);
 	getAuditChannel(message)?.send({
 		content: `Warned <@${message.member?.id}> for posting links to a different Discord server.`,
 	});
@@ -97,12 +119,12 @@ async function checkRacistWords(message: Message<true>): Promise<void> {
 	for (const word of AUTO_BAN_WORDS) {
 		if (!lc.includes(word)) continue;
 
-		await message.delete();
+		await message.delete().catch(handleDiscordError);
 		message.member
 			?.send(
 				'You have been banned from the Mr. Mine Discord for posting racist comments.',
 			)
-			.catch(console.error);
+			.catch(handleDiscordError);
 		message.member
 			?.ban({
 				deleteMessageSeconds: 7 * 24 * 60 * 60,
@@ -143,10 +165,10 @@ async function checkMessageSpam(
 
 	if (hasModPerms(message)) return;
 
-	await message.delete();
+	await message.delete().catch(handleDiscordError);
 	message.member
 		?.send('You have been banned for spamming')
-		.catch(console.error);
+		.catch(handleDiscordError);
 	message.member
 		?.ban({ deleteMessageSeconds: 7 * 24 * 60 * 60, reason: 'spamming' })
 		.catch(console.error);
@@ -192,10 +214,10 @@ async function checkChannelSpam(
 
 	if (hasModPerms(message)) return;
 
-	await message.delete();
+	await message.delete().catch(handleDiscordError);
 	message.member
 		?.send('You have been banned for spamming')
-		.catch(console.error);
+		.catch(handleDiscordError);
 	message.member
 		?.ban({ deleteMessageSeconds: 7 * 24 * 60 * 60, reason: 'spamming' })
 		.catch(console.error);
