@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import {
 	ChannelType,
 	DiscordAPIError,
@@ -5,7 +6,6 @@ import {
 	PermissionsBitField,
 	type TextChannel,
 } from 'discord.js';
-import * as Sentry from '@sentry/node';
 import { config } from '../config.ts';
 import { log } from '../utils/logger.ts';
 
