@@ -1,5 +1,6 @@
 import { type Message, PermissionsBitField } from 'discord.js';
 import { config } from '../config.ts';
+import { handleDiscordError } from './automod.ts';
 
 const BUG_REPORTS_CHANNEL = '761441663397789696';
 const MOBILE_BUG_REPORTS_CHANNEL = '1427421373248180324';
@@ -60,8 +61,7 @@ export class ChannelModService {
 					'Hey, it appears you posted in the bug reports channel with out the proper format. If your message was a bug report, please edit it to include "report:" , preferably including the game version and patch letter, and resend it to the bug reports channel, thanks! \n\n Message Copy: ' +
 					message.content,
 			})
-			.then(console.log)
-			.catch(console.error);
+			.catch(handleDiscordError);
 
 		message.channel
 			.send({
@@ -94,8 +94,7 @@ export class ChannelModService {
 					'Hey, it appears you posted in the mobile bug reports channel without the proper format. If your message was a bug report, please edit it to include "Report Android:" or "Report IOS:" and resend it to the mobile bug reports channel, thanks! \n\n Message Copy: ' +
 					message.content,
 			})
-			.then(console.log)
-			.catch(console.error);
+			.catch(handleDiscordError);
 
 		message.channel
 			.send({
@@ -130,8 +129,7 @@ export class ChannelModService {
 					'Hey, it appears you posted in the ideas and suggestions channel with out the proper format. If your message was an idea, please edit it to include "idea:" and resend it to the ideas channel, thanks! \n\n Message Copy:' +
 					message.content,
 			})
-			.then(console.log)
-			.catch(console.error);
+			.catch(handleDiscordError);
 
 		message.channel
 			.send({

@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('role')
@@ -20,6 +20,6 @@ export async function execute(
 	await interaction.reply({
 		content:
 			"Just go into the in game settings click export and DM <@!764713414206423061> with that code and you should automatically get a role. It's okay if the message is over 2000 characters and gets turned in to a txt file, it can still read it. For further explanations go and read <#808451078201802812>. The roles don't update by themselves, so you will have to do it again, every time you reach the next role requirements.",
-		ephemeral,
+		flags: ephemeral ? MessageFlags.Ephemeral : undefined,
 	});
 }

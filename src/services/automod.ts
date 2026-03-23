@@ -6,13 +6,15 @@ import {
 	PermissionsBitField,
 	type TextChannel,
 } from 'discord.js';
+import { RESTJSONErrorCodes } from 'discord-api-types/v10';
 import { config } from '../config.ts';
 import { log } from '../utils/logger.ts';
 
-/** Discord API error codes that are expected and safe to ignore in automod. */
+/** Discord API error codes that are expected and safe to ignore. */
 const IGNORED_DISCORD_ERRORS = new Set([
-	10008, // Unknown Message - already deleted
-	50278, // Cannot send messages to this user - DMs disabled
+	RESTJSONErrorCodes.UnknownMessage,
+	RESTJSONErrorCodes.UnknownInteraction,
+	RESTJSONErrorCodes.CannotSendMessagesToThisUser,
 ]);
 
 const AUTO_BAN_WORDS = ['nigger', 'nigga', 'jew', 'n1gger', 'n!gger'];
@@ -21,7 +23,7 @@ const AUTO_BAN_WORDS = ['nigger', 'nigga', 'jew', 'n1gger', 'n!gger'];
  * Silently ignores expected Discord API errors (e.g. message already deleted, DMs disabled)
  * and reports anything unexpected to Sentry.
  */
-function handleDiscordError(error: unknown): void {
+export function handleDiscordError(error: unknown): void {
 	if (
 		error instanceof DiscordAPIError &&
 		IGNORED_DISCORD_ERRORS.has(Number(error.code))
