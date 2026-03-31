@@ -5,6 +5,7 @@ import * as Sentry from '@sentry/node';
 import {
 	Client,
 	Collection,
+	DiscordAPIError,
 	Events,
 	GatewayIntentBits,
 	type Interaction,
@@ -14,6 +15,7 @@ import {
 	REST,
 	Routes,
 } from 'discord.js';
+import { RESTJSONErrorCodes } from 'discord-api-types/v10';
 import { config } from './config.ts';
 import { loadData, persistData } from './data.ts';
 import { ModerationService } from './services/automod.ts';
@@ -81,7 +83,6 @@ export class Bot {
 
 		this._client.on('error', (error) => {
 			console.error('Discord.js error:', error);
-			Sentry.captureException(error);
 		});
 
 		this._client.on('warn', (warning) => {
@@ -227,16 +228,22 @@ export class Bot {
 				},
 			});
 
+			// No point replying if the interaction already expired
+			if (
+				error instanceof DiscordAPIError &&
+				error.code === RESTJSONErrorCodes.UnknownInteraction
+			)
+				return;
+
+			const content = 'There was an error while executing this command!';
 			if (interaction.replied || interaction.deferred) {
-				await interaction.followUp({
-					content: 'There was an error while executing this command!',
-					flags: MessageFlags.Ephemeral,
-				});
+				await interaction
+					.followUp({ content, flags: MessageFlags.Ephemeral })
+					.catch(console.error);
 			} else {
-				await interaction.reply({
-					content: 'There was an error while executing this command!',
-					flags: MessageFlags.Ephemeral,
-				});
+				await interaction
+					.reply({ content, flags: MessageFlags.Ephemeral })
+					.catch(console.error);
 			}
 		}
 	}
