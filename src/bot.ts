@@ -45,7 +45,6 @@ export class Bot {
 				GatewayIntentBits.Guilds,
 				GatewayIntentBits.GuildMessages,
 				GatewayIntentBits.MessageContent,
-				GatewayIntentBits.GuildMembers,
 				GatewayIntentBits.DirectMessages,
 			],
 			partials: [Partials.Channel],

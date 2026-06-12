@@ -133,7 +133,9 @@ export class SaveService {
 					);
 
 					const guild = message.client.guilds.cache.get(config.guildId);
-					const targetMember = guild?.members.cache.get(message.author.id);
+					const targetMember = await guild?.members
+						.fetch(message.author.id)
+						.catch(() => null);
 					await targetMember?.roles.set([]);
 					break;
 				}
