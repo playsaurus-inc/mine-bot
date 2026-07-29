@@ -46,7 +46,9 @@ export class Bot {
 			intents: [
 				GatewayIntentBits.Guilds,
 				GatewayIntentBits.GuildMessages,
-				GatewayIntentBits.MessageContent,
+				...(config.requiresMessageContent
+					? [GatewayIntentBits.MessageContent]
+					: []),
 				GatewayIntentBits.DirectMessages,
 			],
 			partials: [Partials.Channel],
@@ -71,6 +73,8 @@ export class Bot {
 	 * and logs the bot into Discord.
 	 */
 	async start(): Promise<void> {
+		this.logFeatures();
+
 		this._client.commands = new Collection<string, Command>();
 
 		this._roleService = new RoleService(
@@ -130,6 +134,24 @@ export class Bot {
 		);
 
 		await this._client.login(config.discordToken);
+	}
+
+	/**
+	 * Logs the enabled features and whether Message Content was requested.
+	 */
+	private logFeatures(): void {
+		const disabled = Object.entries(config.features)
+			.filter(([, enabled]) => !enabled)
+			.map(([name]) => name);
+
+		log(
+			disabled.length > 0
+				? `Disabled features: ${disabled.join(', ')}`
+				: 'All features enabled',
+		);
+		log(
+			`Message Content intent: ${config.requiresMessageContent ? 'requested' : 'not requested'}`,
+		);
 	}
 
 	/**
@@ -254,37 +276,38 @@ export class Bot {
 	private async onMessageCreate(message: Message): Promise<void> {
 		if (message.author.bot) return;
 
-		const lc = message.content.toLowerCase();
-
 		// Auto-responses for common game questions
-		const hasQuestionStarter = QUESTION_STARTERS.some((s) => lc.includes(s));
+		if (config.features.autoResponder) {
+			const lc = message.content.toLowerCase();
+			const hasQuestionStarter = QUESTION_STARTERS.some((s) => lc.includes(s));
 
-		if (
-			hasQuestionStarter &&
-			(lc.includes('red star') || lc.includes('red name'))
-		) {
-			await message.reply({
-				content:
-					'The red names are the names of players who chose to support the game by buying 650 tickets or 1400 tickets at one time.',
-			});
-		} else if (
-			hasQuestionStarter &&
-			(lc.includes('mime') || lc.includes('112'))
-		) {
-			await message.reply({
-				content: "That's Mr. Mime, he's just vibin. He doesn't do anything.",
-			});
-		} else if (
-			(lc.includes('any') ||
-				lc.includes('give me') ||
-				lc.includes('are there')) &&
-			lc.includes('code')
-		) {
-			await message.reply({
-				content:
-					"The devs randomly create the codes and they typically expire after a few days or uses.\nIf the latest ones in <#764279333262852138> don't work it's unlikely there is any available.\nPlease do not ask for any codes and NEVER ask the devs for codes.",
-			});
-			return;
+			if (
+				hasQuestionStarter &&
+				(lc.includes('red star') || lc.includes('red name'))
+			) {
+				await message.reply({
+					content:
+						'The red names are the names of players who chose to support the game by buying 650 tickets or 1400 tickets at one time.',
+				});
+			} else if (
+				hasQuestionStarter &&
+				(lc.includes('mime') || lc.includes('112'))
+			) {
+				await message.reply({
+					content: "That's Mr. Mime, he's just vibin. He doesn't do anything.",
+				});
+			} else if (
+				(lc.includes('any') ||
+					lc.includes('give me') ||
+					lc.includes('are there')) &&
+				lc.includes('code')
+			) {
+				await message.reply({
+					content:
+						"The devs randomly create the codes and they typically expire after a few days or uses.\nIf the latest ones in <#764279333262852138> don't work it's unlikely there is any available.\nPlease do not ask for any codes and NEVER ask the devs for codes.",
+				});
+				return;
+			}
 		}
 
 		// DM handling: process game save files

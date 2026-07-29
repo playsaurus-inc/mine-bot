@@ -36,6 +36,8 @@ export class ChannelModService {
 	 * Deletes messages containing known Google Play spam links.
 	 */
 	private async handleSpamLink(message: Message<true>): Promise<void> {
+		if (!config.features.googlePlaySpamMod) return;
+
 		if (
 			message.content.includes(
 				'Checkout this game I am playing https://play.google.com',
@@ -49,6 +51,7 @@ export class ChannelModService {
 	 * Enforces the "Report:" prefix format in the bug reports channel.
 	 */
 	private async handleBugReportsChannel(message: Message<true>): Promise<void> {
+		if (!config.features.bugReportFormat) return;
 		if (message.channel.id !== BUG_REPORTS_CHANNEL) return;
 		if (message.content.toLowerCase().startsWith('report:')) return;
 		if (hasModPerms(message)) return;
@@ -79,6 +82,7 @@ export class ChannelModService {
 	private async handleMobileBugReportsChannel(
 		message: Message<true>,
 	): Promise<void> {
+		if (!config.features.mobileBugReportFormat) return;
 		if (message.channel.id !== MOBILE_BUG_REPORTS_CHANNEL) return;
 
 		const lc = message.content.toLowerCase();
@@ -110,6 +114,7 @@ export class ChannelModService {
 	 * and adds reaction voting to properly formatted ideas.
 	 */
 	private async handleIdeasChannel(message: Message<true>): Promise<void> {
+		if (!config.features.ideaFormat) return;
 		if (message.channel.id !== IDEAS_CHANNEL) return;
 
 		const lc = message.content.toLowerCase();

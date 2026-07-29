@@ -33,7 +33,26 @@ Then, edit `.env` and provide:
 
 > If you are developing locally, you may want to use a dedicated test server and its ID for `DISCORD_GUILD_ID`.
 
-### 3. Start the Bot
+### 3. Feature Flags
+
+Each chat-driven feature can be switched off without a code change. Set the flag to `false` to disable it, `true` or omit it to leave it on. Any other value stops the bot at startup rather than guessing.
+
+| Flag | Feature | Reads message text |
+| --- | --- | --- |
+| `AUTO_RESPONDER_ENABLED` | Canned replies to common questions asked in chat | yes |
+| `BUG_REPORT_FORMAT_ENABLED` | Deletes bug reports missing the `Report:` prefix | yes |
+| `MOBILE_BUG_REPORT_FORMAT_ENABLED` | Deletes mobile bug reports missing the platform prefix | yes |
+| `IDEA_FORMAT_ENABLED` | Deletes ideas missing the `Idea:` prefix, adds vote reactions | yes |
+| `GOOGLE_PLAY_SPAM_MOD_ENABLED` | Removes the Google Play spam message | yes |
+| `NITRO_SCAM_MOD_ENABLED` | Bans nitro scam posts | yes |
+| `INVITE_LINK_MOD_ENABLED` | Removes `discord.gg` links from new members | yes |
+| `SLUR_BAN_MOD_ENABLED` | Bans new members posting slurs | yes |
+| `RAPID_MESSAGE_SPAM_MOD_ENABLED` | Bans 6 messages in 8 seconds from new members | no |
+| `CROSS_CHANNEL_SPAM_MOD_ENABLED` | Bans posting to 4+ channels in 10 seconds | no |
+
+The Message Content privileged intent is requested only while at least one text-reading feature is on. Turn all eight off and the bot connects without it. The startup log reports which features are disabled and whether the intent was requested.
+
+### 4. Start the Bot
 
 ```bash
 npm start
