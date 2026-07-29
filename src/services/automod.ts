@@ -95,6 +95,8 @@ export class ModerationService {
 	 * Detects and bans users posting nitro scam messages.
 	 */
 	private async checkNitroScam(message: Message<true>): Promise<void> {
+		if (!config.features.nitroScamMod) return;
+
 		const lc = message.content.toLowerCase();
 
 		const isNitroScam =
@@ -127,6 +129,7 @@ export class ModerationService {
 		message: Message<true>,
 		isNewMember: boolean,
 	): Promise<void> {
+		if (!config.features.inviteLinkMod) return;
 		if (!isNewMember) return;
 		if (!message.content.toLowerCase().includes('discord.gg')) return;
 
@@ -144,6 +147,8 @@ export class ModerationService {
 	 * Detects and bans new members posting racist words.
 	 */
 	private async checkRacistWords(message: Message<true>): Promise<void> {
+		if (!config.features.slurBanMod) return;
+
 		const lc = message.content.toLowerCase();
 
 		for (const word of AUTO_BAN_WORDS) {
@@ -175,6 +180,8 @@ export class ModerationService {
 		message: Message<true>,
 		currentTime: number,
 	): Promise<void> {
+		if (!config.features.rapidMessageSpamMod) return;
+
 		const userId = message.author.id;
 
 		if (!this._userMessageHistory[userId]) {
@@ -218,6 +225,8 @@ export class ModerationService {
 		message: Message<true>,
 		currentTime: number,
 	): Promise<void> {
+		if (!config.features.crossChannelSpamMod) return;
+
 		const userId = message.author.id;
 		const channelId = message.channel.id;
 
