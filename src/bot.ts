@@ -23,6 +23,7 @@ import { ChannelModService } from './services/channelMod.ts';
 import { RoleService } from './services/roles.ts';
 import { SaveService } from './services/saves.ts';
 import type { Command } from './types/index.ts';
+import { audit } from './utils/audit.ts';
 import { log } from './utils/logger.ts';
 
 const COMMANDS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'commands');
@@ -74,6 +75,12 @@ export class Bot {
 	 */
 	async start(): Promise<void> {
 		this.logFeatures();
+		audit('bot.started', {
+			enabledFeatures: Object.entries(config.features)
+				.filter(([, enabled]) => enabled)
+				.map(([name]) => name),
+			messageContentRequested: config.requiresMessageContent,
+		});
 
 		this._client.commands = new Collection<string, Command>();
 
@@ -238,7 +245,19 @@ export class Bot {
 
 		try {
 			await command.execute(interaction);
+			audit('command.executed', {
+				channelId: interaction.channelId,
+				command: interaction.commandName,
+				guildId: interaction.guildId,
+				userId: interaction.user.id,
+			});
 		} catch (error) {
+			audit('command.failed', {
+				channelId: interaction.channelId,
+				command: interaction.commandName,
+				guildId: interaction.guildId,
+				userId: interaction.user.id,
+			});
 			console.error(error);
 
 			Sentry.captureException(error, {
@@ -285,6 +304,12 @@ export class Bot {
 				hasQuestionStarter &&
 				(lc.includes('red star') || lc.includes('red name'))
 			) {
+				audit('auto_response.red_names', {
+					channelId: message.channel.id,
+					guildId: message.guildId,
+					temporaryMessageContent: message.content,
+					userId: message.author.id,
+				});
 				await message.reply({
 					content:
 						'The red names are the names of players who chose to support the game by buying 650 tickets or 1400 tickets at one time.',
@@ -293,6 +318,12 @@ export class Bot {
 				hasQuestionStarter &&
 				(lc.includes('mime') || lc.includes('112'))
 			) {
+				audit('auto_response.mr_mime', {
+					channelId: message.channel.id,
+					guildId: message.guildId,
+					temporaryMessageContent: message.content,
+					userId: message.author.id,
+				});
 				await message.reply({
 					content: "That's Mr. Mime, he's just vibin. He doesn't do anything.",
 				});
@@ -302,6 +333,12 @@ export class Bot {
 					lc.includes('are there')) &&
 				lc.includes('code')
 			) {
+				audit('auto_response.codes', {
+					channelId: message.channel.id,
+					guildId: message.guildId,
+					temporaryMessageContent: message.content,
+					userId: message.author.id,
+				});
 				await message.reply({
 					content:
 						"The devs randomly create the codes and they typically expire after a few days or uses.\nIf the latest ones in <#764279333262852138> don't work it's unlikely there is any available.\nPlease do not ask for any codes and NEVER ask the devs for codes.",

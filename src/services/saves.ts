@@ -2,6 +2,7 @@ import type { Message } from 'discord.js';
 import { config } from '../config.ts';
 import { persistBannedFromRoles, store } from '../data.ts';
 import type { DataStore } from '../types/index.ts';
+import { audit } from '../utils/audit.ts';
 import { log } from '../utils/logger.ts';
 import type { RoleService } from './roles.ts';
 
@@ -46,6 +47,10 @@ export class SaveService {
 	 */
 	async processDmMessage(message: Message): Promise<void> {
 		if (store.bannedFromRoles.includes(message.author.id)) {
+			audit('save.rejected', {
+				reason: 'user_already_banned',
+				userId: message.author.id,
+			});
 			await message.reply(
 				'Your save was determined to be illegitimate either because you cheated or used a different users save. You will no longer be eligible for ranks on the server.',
 			);
@@ -56,11 +61,19 @@ export class SaveService {
 
 		const attachment = message.attachments.first();
 		if (attachment?.name === 'message.txt') {
+			audit('save.received', {
+				input: 'attachment',
+				userId: message.author.id,
+			});
 			try {
 				const response = await fetch(attachment.url);
 				const data = await response.text();
 				await this.processSaveData(data, message);
 			} catch (error) {
+				audit('save.failed', {
+					reason: 'attachment_download_failed',
+					userId: message.author.id,
+				});
 				console.error('Error downloading save attachment:', error);
 			}
 			return;
@@ -71,6 +84,10 @@ export class SaveService {
 			message.content.includes('|') &&
 			!message.content.includes(' ')
 		) {
+			audit('save.received', {
+				input: 'message',
+				userId: message.author.id,
+			});
 			await this.processSaveData(message.content, message);
 			return;
 		}
@@ -84,6 +101,10 @@ export class SaveService {
 	 */
 	private async processSaveData(data: string, message: Message): Promise<void> {
 		if (!data.includes('|')) {
+			audit('save.rejected', {
+				reason: 'unsupported_format',
+				userId: message.author.id,
+			});
 			await message.reply(
 				"Your save is missing data, please make sure to paste all of the text. It's okay if Discord asks you to convert it to a file.\nIf you sent me your save by clicking on my name on the right pannel and pasting the text in the little box, Discord automatically cuts the text to 500 characters. So please send it from the actual DM page.",
 			);
@@ -93,6 +114,10 @@ export class SaveService {
 		const save = SaveService.decodeSave(data);
 
 		if (save.length < 450) {
+			audit('save.rejected', {
+				reason: 'incomplete_save',
+				userId: message.author.id,
+			});
 			await message.reply(
 				"Your save is missing data, please make sure to paste all of the text. It's okay if Discord asks you to convert it to a file.\nIf you sent me your save by clicking on my name on the right pannel and pasting the text in the little box, Discord automatically cuts the text to 500 characters. So please send it from this DM actual DM page.",
 			);
@@ -143,6 +168,10 @@ export class SaveService {
 		}
 
 		if (!userBanned && !store.bannedFromRoles.includes(message.author.id)) {
+			audit('save.accepted', {
+				depth: Number(depth),
+				userId: message.author.id,
+			});
 			store.saves.push({
 				userID: message.author.id,
 				depth,
@@ -152,6 +181,10 @@ export class SaveService {
 			});
 			await this._roleService.setRole(Number(depth), message);
 		} else if (!store.bannedFromRoles.includes(message.author.id)) {
+			audit('save.banned', {
+				reason: 'validation_failed',
+				userId: message.author.id,
+			});
 			store.bannedFromRoles.push(message.author.id);
 			persistBannedFromRoles();
 
