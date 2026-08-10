@@ -1,5 +1,6 @@
 import { type Message, PermissionsBitField } from 'discord.js';
 import { config } from '../config.ts';
+import { audit } from '../utils/audit.ts';
 import { handleDiscordError } from './automod.ts';
 
 const BUG_REPORTS_CHANNEL = '761441663397789696';
@@ -44,6 +45,13 @@ export class ChannelModService {
 			)
 		) {
 			await message.delete();
+			audit('moderation.google_play_spam', {
+				action: 'delete',
+				channelId: message.channel.id,
+				guildId: message.guildId,
+				temporaryMessageContent: message.content,
+				userId: message.author.id,
+			});
 		}
 	}
 
@@ -57,6 +65,12 @@ export class ChannelModService {
 		if (hasModPerms(message)) return;
 
 		await message.delete();
+		audit('channel.bug_report_rejected', {
+			channelId: message.channel.id,
+			guildId: message.guildId,
+			temporaryMessageContent: message.content,
+			userId: message.author.id,
+		});
 
 		message.member
 			?.send({
@@ -91,6 +105,12 @@ export class ChannelModService {
 		if (hasModPerms(message)) return;
 
 		await message.delete();
+		audit('channel.mobile_bug_report_rejected', {
+			channelId: message.channel.id,
+			guildId: message.guildId,
+			temporaryMessageContent: message.content,
+			userId: message.author.id,
+		});
 
 		message.member
 			?.send({
@@ -121,12 +141,24 @@ export class ChannelModService {
 		if (lc.startsWith('idea:') || lc.startsWith('suggestion:')) {
 			await message.react('\u{1F44D}');
 			await message.react('\u{1F44E}');
+			audit('channel.idea_accepted', {
+				channelId: message.channel.id,
+				guildId: message.guildId,
+				temporaryMessageContent: message.content,
+				userId: message.author.id,
+			});
 			return;
 		}
 
 		if (hasModPerms(message)) return;
 
 		await message.delete();
+		audit('channel.idea_rejected', {
+			channelId: message.channel.id,
+			guildId: message.guildId,
+			temporaryMessageContent: message.content,
+			userId: message.author.id,
+		});
 
 		message.member
 			?.send({

@@ -8,6 +8,7 @@ import {
 } from 'discord.js';
 import { RESTJSONErrorCodes } from 'discord-api-types/v10';
 import { config } from '../config.ts';
+import { audit } from '../utils/audit.ts';
 import { log } from '../utils/logger.ts';
 
 /** Discord API error codes that are expected and safe to ignore. */
@@ -109,6 +110,13 @@ export class ModerationService {
 
 		if (!isNitroScam) return;
 
+		audit('moderation.nitro_scam', {
+			action: 'ban',
+			channelId: message.channel.id,
+			guildId: message.guildId,
+			temporaryMessageContent: message.content,
+			userId: message.author.id,
+		});
 		console.log(message.content);
 		await message.delete().catch(handleDiscordError);
 		message.member
@@ -133,6 +141,13 @@ export class ModerationService {
 		if (!isNewMember) return;
 		if (!message.content.toLowerCase().includes('discord.gg')) return;
 
+		audit('moderation.invite_link', {
+			action: 'delete_and_warn',
+			channelId: message.channel.id,
+			guildId: message.guildId,
+			temporaryMessageContent: message.content,
+			userId: message.author.id,
+		});
 		await message.delete().catch(handleDiscordError);
 		log(`Link posted by ${message.author.username}`);
 		message.member
@@ -154,6 +169,13 @@ export class ModerationService {
 		for (const word of AUTO_BAN_WORDS) {
 			if (!lc.includes(word)) continue;
 
+			audit('moderation.slur', {
+				action: 'ban',
+				channelId: message.channel.id,
+				guildId: message.guildId,
+				temporaryMessageContent: message.content,
+				userId: message.author.id,
+			});
 			await message.delete().catch(handleDiscordError);
 			message.member
 				?.send(
@@ -206,6 +228,15 @@ export class ModerationService {
 
 		if (ModerationService.hasModPerms(message)) return;
 
+		audit('moderation.rapid_message_spam', {
+			action: 'ban',
+			channelId: message.channel.id,
+			guildId: message.guildId,
+			messageCount: 6,
+			temporaryMessageContent: message.content,
+			userId: message.author.id,
+			windowMs: 8_000,
+		});
 		await message.delete().catch(handleDiscordError);
 		message.member
 			?.send('You have been banned for spamming')
@@ -260,6 +291,14 @@ export class ModerationService {
 
 		if (ModerationService.hasModPerms(message)) return;
 
+		audit('moderation.cross_channel_spam', {
+			action: 'ban',
+			channelIds: keys,
+			guildId: message.guildId,
+			temporaryMessageContent: message.content,
+			userId: message.author.id,
+			windowMs: 10_000,
+		});
 		await message.delete().catch(handleDiscordError);
 		message.member
 			?.send('You have been banned for spamming')

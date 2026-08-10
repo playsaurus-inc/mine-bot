@@ -1,4 +1,5 @@
 import type { Client, Message } from 'discord.js';
+import { audit } from '../utils/audit.ts';
 import { log } from '../utils/logger.ts';
 import type { SaveService } from './saves.ts';
 
@@ -55,6 +56,12 @@ export class RoleService {
 
 			if (roleId) {
 				await member.roles.add(roleId);
+				audit('role.assigned', {
+					depth,
+					guildId: this._guildId,
+					roleId,
+					userId: message.author.id,
+				});
 				await message.reply(
 					'You have been assigned a role on the Mr. Mine Discord. Post a message in chat to see it.',
 				);
