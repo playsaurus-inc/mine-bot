@@ -5,7 +5,6 @@ export interface SaveEntry {
 	depth: string;
 	timeplayed: number;
 	gameUID: string;
-	save: string;
 }
 
 export interface BannedSaveEntry {
@@ -14,7 +13,6 @@ export interface BannedSaveEntry {
 	timeplayed: number;
 	gameUID: string;
 	userBanned: boolean;
-	save: string;
 }
 
 export interface DataStore {

@@ -49,7 +49,6 @@ export class ChannelModService {
 				action: 'delete',
 				channelId: message.channel.id,
 				guildId: message.guildId,
-				temporaryMessageContent: message.content,
 				userId: message.author.id,
 			});
 		}
@@ -68,7 +67,6 @@ export class ChannelModService {
 		audit('channel.bug_report_rejected', {
 			channelId: message.channel.id,
 			guildId: message.guildId,
-			temporaryMessageContent: message.content,
 			userId: message.author.id,
 		});
 
@@ -108,7 +106,6 @@ export class ChannelModService {
 		audit('channel.mobile_bug_report_rejected', {
 			channelId: message.channel.id,
 			guildId: message.guildId,
-			temporaryMessageContent: message.content,
 			userId: message.author.id,
 		});
 
@@ -144,7 +141,6 @@ export class ChannelModService {
 			audit('channel.idea_accepted', {
 				channelId: message.channel.id,
 				guildId: message.guildId,
-				temporaryMessageContent: message.content,
 				userId: message.author.id,
 			});
 			return;
@@ -156,7 +152,6 @@ export class ChannelModService {
 		audit('channel.idea_rejected', {
 			channelId: message.channel.id,
 			guildId: message.guildId,
-			temporaryMessageContent: message.content,
 			userId: message.author.id,
 		});
 

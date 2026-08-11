@@ -114,10 +114,8 @@ export class ModerationService {
 			action: 'ban',
 			channelId: message.channel.id,
 			guildId: message.guildId,
-			temporaryMessageContent: message.content,
 			userId: message.author.id,
 		});
-		console.log(message.content);
 		await message.delete().catch(handleDiscordError);
 		message.member
 			?.ban({
@@ -145,7 +143,6 @@ export class ModerationService {
 			action: 'delete_and_warn',
 			channelId: message.channel.id,
 			guildId: message.guildId,
-			temporaryMessageContent: message.content,
 			userId: message.author.id,
 		});
 		await message.delete().catch(handleDiscordError);
@@ -173,7 +170,6 @@ export class ModerationService {
 				action: 'ban',
 				channelId: message.channel.id,
 				guildId: message.guildId,
-				temporaryMessageContent: message.content,
 				userId: message.author.id,
 			});
 			await message.delete().catch(handleDiscordError);
@@ -233,7 +229,6 @@ export class ModerationService {
 			channelId: message.channel.id,
 			guildId: message.guildId,
 			messageCount: 6,
-			temporaryMessageContent: message.content,
 			userId: message.author.id,
 			windowMs: 8_000,
 		});
@@ -295,7 +290,6 @@ export class ModerationService {
 			action: 'ban',
 			channelIds: keys,
 			guildId: message.guildId,
-			temporaryMessageContent: message.content,
 			userId: message.author.id,
 			windowMs: 10_000,
 		});

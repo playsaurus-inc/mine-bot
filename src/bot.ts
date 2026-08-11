@@ -307,7 +307,6 @@ export class Bot {
 				audit('auto_response.red_names', {
 					channelId: message.channel.id,
 					guildId: message.guildId,
-					temporaryMessageContent: message.content,
 					userId: message.author.id,
 				});
 				await message.reply({
@@ -321,7 +320,6 @@ export class Bot {
 				audit('auto_response.mr_mime', {
 					channelId: message.channel.id,
 					guildId: message.guildId,
-					temporaryMessageContent: message.content,
 					userId: message.author.id,
 				});
 				await message.reply({
@@ -336,7 +334,6 @@ export class Bot {
 				audit('auto_response.codes', {
 					channelId: message.channel.id,
 					guildId: message.guildId,
-					temporaryMessageContent: message.content,
 					userId: message.author.id,
 				});
 				await message.reply({

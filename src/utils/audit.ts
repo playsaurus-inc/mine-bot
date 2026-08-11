@@ -14,7 +14,7 @@ const AUDIT_DIRECTORY = path.join(process.cwd(), 'logs');
  * Appends one structured event to the daily audit file.
  *
  * @param event - Stable event name used for counting and filtering.
- * @param context - Relevant IDs, outcomes, and temporary content when provided.
+ * @param context - Relevant IDs and outcome metadata.
  */
 export function audit(event: string, context: AuditContext = {}): void {
 	try {
