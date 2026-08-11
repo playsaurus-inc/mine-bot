@@ -92,7 +92,7 @@ export class SaveService {
 			return;
 		}
 
-		log(message.content);
+		log('received unsupported DM');
 	}
 
 	/**
@@ -124,18 +124,14 @@ export class SaveService {
 			return;
 		}
 
-		await this.checkSave(save, data, message);
+		await this.checkSave(save, message);
 	}
 
 	/**
 	 * Validates a decoded save against existing saves to detect cheating or
 	 * duplicate submissions, then either assigns a role or bans the user.
 	 */
-	private async checkSave(
-		save: string[],
-		data: string,
-		message: Message,
-	): Promise<void> {
+	private async checkSave(save: string[], message: Message): Promise<void> {
 		log('checking save');
 
 		const depth = save[1] ?? '0';
@@ -177,7 +173,6 @@ export class SaveService {
 				depth,
 				timeplayed: Math.round(timeplayed),
 				gameUID,
-				save: data,
 			});
 			await this._roleService.setRole(Number(depth), message);
 		} else if (!store.bannedFromRoles.includes(message.author.id)) {
@@ -194,7 +189,6 @@ export class SaveService {
 				timeplayed: Math.round(timeplayed),
 				gameUID,
 				userBanned,
-				save: data,
 			});
 		}
 	}
