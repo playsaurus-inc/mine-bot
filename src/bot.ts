@@ -311,7 +311,7 @@ export class Bot {
 				});
 				await message.reply({
 					content:
-						'The red names are the names of players who chose to support the game by buying 650 tickets or 1400 tickets at one time.',
+						'The red names are the names of players who supported the game. You can get your name in the game with the "Name a Mr.Mine miner" item in the Playsaurus Points Shop: https://app.playsaurus.com/points/items/name-a-mr-mine-miner',
 				});
 			} else if (
 				hasQuestionStarter &&
