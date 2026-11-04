@@ -295,6 +295,8 @@ export class Bot {
 	private async onMessageCreate(message: Message): Promise<void> {
 		if (message.author.bot) return;
 
+		let autoResponded = false;
+
 		// Auto-responses for common game questions
 		if (config.features.autoResponder) {
 			const lc = message.content.toLowerCase();
@@ -309,6 +311,7 @@ export class Bot {
 					guildId: message.guildId,
 					userId: message.author.id,
 				});
+				autoResponded = true;
 				await message.reply({
 					content:
 						'The red names are the names of players who chose to support the game by buying 650 tickets or 1400 tickets at one time.',
@@ -322,6 +325,7 @@ export class Bot {
 					guildId: message.guildId,
 					userId: message.author.id,
 				});
+				autoResponded = true;
 				await message.reply({
 					content: "That's Mr. Mime, he's just vibin. He doesn't do anything.",
 				});
@@ -346,6 +350,7 @@ export class Bot {
 
 		// DM handling: process game save files
 		if (message.channel.isDMBased()) {
+			if (autoResponded) return;
 			await this._saveService.processDmMessage(message);
 			return;
 		}
