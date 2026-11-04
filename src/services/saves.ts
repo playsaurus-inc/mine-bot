@@ -75,6 +75,9 @@ export class SaveService {
 					userId: message.author.id,
 				});
 				console.error('Error downloading save attachment:', error);
+				await message.reply(
+					"I couldn't read your save file. Please try sending it again.",
+				);
 			}
 			return;
 		}
@@ -93,6 +96,14 @@ export class SaveService {
 		}
 
 		log('received unsupported DM');
+
+		audit('save.rejected', {
+			reason: 'not_a_save',
+			userId: message.author.id,
+		});
+		await message.reply(
+			"That doesn't look like a save. Send your save file, or paste only the save text.",
+		);
 	}
 
 	/**
